@@ -1,17 +1,18 @@
 package com.backend.study_hub_api.model;
 
+import com.backend.study_hub_api.helper.enumeration.UserRole;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.time.ZonedDateTime;
+import java.time.Instant;
 
-@NoArgsConstructor
-@AllArgsConstructor
 @Entity
 @Table(name = "t_users")
 @Getter
 @Setter
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -42,6 +43,10 @@ public class User {
 
     private String bio;
 
+    @Column(name = "role", nullable = false)
+    @Enumerated(EnumType.STRING)
+    private UserRole role;
+
     @Column(name = "is_verified")
     private Boolean isVerified = false;
 
@@ -49,19 +54,19 @@ public class User {
     private Boolean isActive = true;
 
     @Column(name = "created_at")
-    private ZonedDateTime createdAt;
+    private Instant createdAt;
 
     @Column(name = "updated_at")
-    private ZonedDateTime updatedAt;
+    private Instant updatedAt;
 
     @PrePersist
     protected void onCreate() {
-        createdAt = ZonedDateTime.now();
-        updatedAt = ZonedDateTime.now();
+        createdAt = Instant.now();
+        updatedAt = Instant.now();
     }
 
     @PreUpdate
     protected void onUpdate() {
-        updatedAt = ZonedDateTime.now();
+        updatedAt = Instant.now();
     }
 }
