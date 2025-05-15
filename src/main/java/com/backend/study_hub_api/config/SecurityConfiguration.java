@@ -59,7 +59,7 @@ public class SecurityConfiguration {
                         .requestMatchers(new AntPathRequestMatcher("/v3/api-docs/**")).permitAll()
 
                         .requestMatchers(new AntPathRequestMatcher("/api/common/**")).permitAll()
-                        .requestMatchers(new AntPathRequestMatcher("/api/authentication/**")).permitAll()
+                        .requestMatchers(new AntPathRequestMatcher("/api/auth/**")).permitAll()
 //                        .requestMatchers(new AntPathRequestMatcher("/api/admin/**")).hasAuthority("SYSTEM_ADMIN")
 //                        .requestMatchers(new AntPathRequestMatcher("/api/business/**")).hasAuthority("BUSINESS_OWNER")
 

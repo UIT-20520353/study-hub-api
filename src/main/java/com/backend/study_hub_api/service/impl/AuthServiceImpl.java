@@ -1,8 +1,6 @@
-// AuthServiceImpl.java
 package com.backend.study_hub_api.service.impl;
 
 import com.backend.study_hub_api.dto.AuthDTO;
-import com.backend.study_hub_api.dto.UserDTO;
 import com.backend.study_hub_api.model.User;
 import com.backend.study_hub_api.model.UserSession;
 import com.backend.study_hub_api.repository.UserSessionRepository;
@@ -57,23 +55,7 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     @Transactional
-    public AuthDTO.AuthResponse register(AuthDTO.RegisterRequest request) {
-        UserDTO userDTO = userService.registerUser(request);
-
-        User user = userService.findByEmail(request.getEmail())
-                .orElseThrow(() -> new RuntimeException("Lỗi không xác định khi đăng ký"));
-
-        String tokenId = UUID.randomUUID().toString();
-        Instant expiredDate = Instant.now().plus(30, ChronoUnit.DAYS);
-
-        UserSession userSession = new UserSession(tokenId, expiredDate);
-        userSession.setUser(user);
-        userSessionRepository.save(userSession);
-
-        return AuthDTO.AuthResponse.builder()
-                .token(tokenId)
-                .tokenType("Bearer")
-                .user(userDTO)
-                .build();
+    public void register(AuthDTO.RegisterRequest request) {
+        userService.registerUser(request);
     }
 }

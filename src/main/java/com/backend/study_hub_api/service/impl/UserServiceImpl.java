@@ -4,6 +4,7 @@ package com.backend.study_hub_api.service.impl;
 import com.backend.study_hub_api.dto.AuthDTO;
 import com.backend.study_hub_api.dto.UserDTO;
 import com.backend.study_hub_api.helper.enumeration.UserRole;
+import com.backend.study_hub_api.helper.exception.BadRequestException;
 import com.backend.study_hub_api.model.User;
 import com.backend.study_hub_api.repository.UserRepository;
 import com.backend.study_hub_api.service.UserService;
@@ -15,6 +16,8 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+
+import static com.backend.study_hub_api.helper.constant.Message.USER_ALREADY_EXISTS;
 
 @Service
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
@@ -30,9 +33,9 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserDTO registerUser(AuthDTO.RegisterRequest request) {
+    public User registerUser(AuthDTO.RegisterRequest request) {
         if (userRepository.existsByEmail(request.getEmail())) {
-            throw new RuntimeException("Email đã tồn tại trong hệ thống");
+            throw new BadRequestException(USER_ALREADY_EXISTS);
         }
 
         User user = User.builder()
@@ -49,8 +52,7 @@ public class UserServiceImpl implements UserService {
                 .isActive(true)
                 .build();
 
-        User savedUser = userRepository.save(user);
-        return mapToDTO(savedUser);
+        return userRepository.save(user);
     }
 
     @Override

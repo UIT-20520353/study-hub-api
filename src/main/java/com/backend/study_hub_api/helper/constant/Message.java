@@ -39,6 +39,7 @@ public class Message {
 
     public static final String USER_NOT_FOUND_ERROR = "error.user.not-found";
     public static final String INVALID_CREDENTIAL_ERR = "error.validate.login.invalid-credential";
+    public static final String USER_ALREADY_EXISTS = "error.user.already-exists";
 
 }
 
