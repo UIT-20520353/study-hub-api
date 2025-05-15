@@ -24,7 +24,10 @@ public class Message {
     public static final String EMAIL_REQUIRED_ERROR = "error.validate.email.required";
     public static final String EMAIL_FORMAT_ERROR = "error.validate.email.format";
     public static final String PASSWORD_REQUIRED_ERROR = "error.validate.password.required";
+    public static final String PASSWORD_MIN_LENGTH_ERROR = "error.validate.password.min-length";
     public static final String LOGIN_TYPE_REQUIRED_ERROR = "error.validate.login-type.required";
+
+    public static final String FULL_NAME_REQUIRED_ERROR = "error.validate.login-type.required";
 
     public static final String IMAGE_REQUIRED_ERROR = "error.validate.image.required";
     public static final String IMAGE_UPLOAD_FAIL_ERROR = "error.validate.image.upload-fail";
