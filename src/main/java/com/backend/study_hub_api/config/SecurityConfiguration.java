@@ -2,6 +2,7 @@ package com.backend.study_hub_api.config;
 
 import com.backend.study_hub_api.config.jwt.JwtProvider;
 import com.backend.study_hub_api.filter.AuthenticationFilter;
+import com.backend.study_hub_api.helper.enumeration.UserRole;
 import com.backend.study_hub_api.service.UserService;
 import com.backend.study_hub_api.service.UserSessionService;
 import lombok.RequiredArgsConstructor;
@@ -60,8 +61,7 @@ public class SecurityConfiguration {
 
                         .requestMatchers(new AntPathRequestMatcher("/api/common/**")).permitAll()
                         .requestMatchers(new AntPathRequestMatcher("/api/auth/**")).permitAll()
-//                        .requestMatchers(new AntPathRequestMatcher("/api/admin/**")).hasAuthority("SYSTEM_ADMIN")
-//                        .requestMatchers(new AntPathRequestMatcher("/api/business/**")).hasAuthority("BUSINESS_OWNER")
+                        .requestMatchers(new AntPathRequestMatcher("/api/admin/**")).hasAuthority("SYSTEM_ADMIN")
 
                         .requestMatchers(new AntPathRequestMatcher("/")).permitAll()
                         .anyRequest().authenticated())

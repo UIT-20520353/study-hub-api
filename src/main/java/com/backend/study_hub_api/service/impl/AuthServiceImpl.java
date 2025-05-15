@@ -1,6 +1,9 @@
 package com.backend.study_hub_api.service.impl;
 
+import com.backend.study_hub_api.config.jwt.GenerateJwtResult;
+import com.backend.study_hub_api.config.jwt.JwtProvider;
 import com.backend.study_hub_api.dto.AuthDTO;
+import com.backend.study_hub_api.helper.exception.AuthenticationException;
 import com.backend.study_hub_api.model.User;
 import com.backend.study_hub_api.model.UserSession;
 import com.backend.study_hub_api.repository.UserSessionRepository;
@@ -27,27 +30,24 @@ public class AuthServiceImpl implements AuthService {
 
     UserService userService;
     PasswordEncoder passwordEncoder;
-    UserSessionRepository userSessionRepository;
+    JwtProvider jwtProvider;
 
     @Override
     @Transactional
     public AuthDTO.AuthResponse login(AuthDTO.LoginRequest request) {
         User user = userService.findByEmail(request.getEmail())
-                .orElseThrow(() -> new BadCredentialsException(INVALID_CREDENTIAL_ERR));
+                .orElseThrow(() -> new AuthenticationException(INVALID_CREDENTIAL_ERR));
 
         if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
-            throw new BadCredentialsException(INVALID_CREDENTIAL_ERR);
+            throw new AuthenticationException(INVALID_CREDENTIAL_ERR);
         }
 
-        String tokenId = UUID.randomUUID().toString();
-        Instant expiredDate = Instant.now().plus(30, ChronoUnit.DAYS);
+        GenerateJwtResult jwtTokens = jwtProvider.generateToken(user);
 
-        UserSession userSession = new UserSession(tokenId, expiredDate);
-        userSession.setUser(user);
-        userSessionRepository.save(userSession);
+        user.setNewSession(new UserSession(jwtTokens.tokenId(), jwtTokens.expiredDate()));
 
         return AuthDTO.AuthResponse.builder()
-                .token(tokenId)
+                .token(jwtTokens.accessToken())
                 .tokenType("Bearer")
                 .user(userService.mapToDTO(user))
                 .build();

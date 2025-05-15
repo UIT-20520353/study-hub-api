@@ -1,10 +1,12 @@
 package com.backend.study_hub_api.model;
 
 import com.backend.study_hub_api.helper.enumeration.UserRole;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.Instant;
+import java.util.List;
 
 @Entity
 @Table(name = "t_users")
@@ -59,6 +61,17 @@ public class User {
 
     @Column(name = "updated_at")
     private Instant updatedAt;
+
+    @JsonIgnore
+    @ToString.Exclude
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
+    private List<UserSession> sessions;
+
+    public void setNewSession(UserSession session) {
+        session.setUser(this);
+        this.sessions.clear();
+        this.sessions.add(session);
+    }
 
     @PrePersist
     protected void onCreate() {
