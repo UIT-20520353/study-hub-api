@@ -9,6 +9,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.NativeWebRequest;
@@ -60,6 +61,10 @@ public class ExceptionTranslator implements ProblemHandling, SecurityAdviceTrait
             return new ResponseEntity<>(buildUnauthorizedProblem(problem), entity.getHeaders(), entity.getStatusCode());
         }
 
+        if (problem.getStatus().equals(Status.FORBIDDEN)) {
+            return new ResponseEntity<>(buildForbiddenProblem(problem), entity.getHeaders(), entity.getStatusCode());
+        }
+
         return new ResponseEntity<>(buildUnknownExceptionProblem(problem), entity.getHeaders(), entity.getStatusCode());
     }
 
@@ -90,6 +95,17 @@ public class ExceptionTranslator implements ProblemHandling, SecurityAdviceTrait
                 .withDetail(detail)
                 .build();
         return new ResponseEntity<>(problem, new HttpHeaders(), HttpStatus.BAD_REQUEST);
+    }
+
+    @Override
+    public ResponseEntity<Problem> handleAccessDenied(AccessDeniedException exception, NativeWebRequest request) {
+        Problem problem = Problem
+                .builder()
+                .withStatus(Status.FORBIDDEN)
+                .withTitle(FORBIDDEN_TITLE)
+                .withDetail(FORBIDDEN)
+                .build();
+        return create(exception, problem, request);
     }
 
     @ExceptionHandler(ClientAbortException.class)
@@ -143,6 +159,18 @@ public class ExceptionTranslator implements ProblemHandling, SecurityAdviceTrait
                       .withDetail("Internal Server Error")
                       .with("test", "error.internal.server")
                       .withStatus(Status.INTERNAL_SERVER_ERROR).build();
+    }
+
+    private Problem buildForbiddenProblem(Problem problem) {
+        String msgCode = problem.getDetail();
+        String title = problem.getTitle();
+        return Problem.builder().withType(
+                              Problem.DEFAULT_TYPE.equals(problem.getType())
+                                      ? ResponseType.FORBIDDEN.getType()
+                                      : problem.getType())
+                      .withDetail(msgCode != null ? msgCode : "Access Denied")
+                      .withTitle(title != null ? title : "Forbidden")
+                      .withStatus(Status.FORBIDDEN).build();
     }
 
 }

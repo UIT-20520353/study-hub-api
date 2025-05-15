@@ -15,6 +15,9 @@ public class Message {
     public static String UNAUTHORIZED = "error.unauthorized";
     public static String BAD_REQUEST = "error.bad-request";
 
+    public static final String FORBIDDEN = "error.forbidden.access-denied";
+    public static final String FORBIDDEN_TITLE = "Forbidden";
+
     public static final String EMAIL_REQUIRED_ERROR = "error.validate.email.required";
     public static final String EMAIL_FORMAT_ERROR = "error.validate.email.format";
     public static final String PASSWORD_REQUIRED_ERROR = "error.validate.password.required";

@@ -14,7 +14,6 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/admin/universities")
 @RequiredArgsConstructor
-@PreAuthorize("hasAuthority('SYSTEM_ADMIN')")
 @Tag(name = "University Management", description = "Endpoints for university management (Admin only)")
 public class UniversityController {
 
