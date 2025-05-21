@@ -42,5 +42,10 @@ public class Message {
     public static final String UNIVERSITY_NOT_FOUND = "error.university.not-found";
     public static final String UNIVERSITY_ALREADY_EXISTS = "error.university.already-exists";
 
+    public static final String CATEGORY_NOT_FOUND = "error.category.not-found";
+    public static final String CATEGORY_NAME_ALREADY_EXISTS = "error.category.already-exists";
+    public static final String CATEGORY_NAME_REQUIRED_ERROR = "error.validate.category.name.required";
+    public static final String CATEGORY_NAME_LENGTH_ERROR = "error.validate.category.name.length";
+
 }
 
