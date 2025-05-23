@@ -1,4 +1,3 @@
-// UserServiceImpl.java
 package com.backend.study_hub_api.service.impl;
 
 import com.backend.study_hub_api.dto.AuthDTO;
@@ -18,6 +17,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static com.backend.study_hub_api.helper.constant.Message.USER_ALREADY_EXISTS;
+import static com.backend.study_hub_api.helper.constant.Message.USER_NOT_FOUND_ERROR;
 
 @Service
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
@@ -64,7 +64,7 @@ public class UserServiceImpl implements UserService {
     public UserDTO getUserById(Long id) {
         return userRepository.findById(id)
                 .map(this::mapToDTO)
-                .orElseThrow(() -> new RuntimeException("Không tìm thấy người dùng"));
+                .orElseThrow(() -> new BadRequestException(USER_NOT_FOUND_ERROR));
     }
 
     @Override

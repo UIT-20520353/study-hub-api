@@ -57,4 +57,5 @@ public class AuthDTO {
         private String tokenType;
         private UserDTO user;
     }
+
 }

@@ -63,6 +63,8 @@ public class SecurityConfiguration {
                         .requestMatchers(new AntPathRequestMatcher("/api/auth/**")).permitAll()
                         .requestMatchers(new AntPathRequestMatcher("/api/admin/**")).hasAuthority("SYSTEM_ADMIN")
 
+                        .requestMatchers(new AntPathRequestMatcher("/api/user/**")).authenticated()
+
                         .requestMatchers(new AntPathRequestMatcher("/")).permitAll()
                         .anyRequest().authenticated())
                 .addFilterBefore(
