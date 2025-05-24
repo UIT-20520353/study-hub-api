@@ -47,5 +47,21 @@ public class Message {
     public static final String CATEGORY_NAME_REQUIRED_ERROR = "error.validate.category.name.required";
     public static final String CATEGORY_NAME_LENGTH_ERROR = "error.validate.category.name.length";
 
+    public static final String TOPIC_NOT_FOUND_ERROR = "error.topic.not-found";
+    public static final String TOPIC_NOT_AUTHORIZED_ERROR = "error.topic.not-authorized";
+    public static final String TOPIC_TITLE_REQUIRED_ERROR = "error.validate.topic.title.required";
+    public static final String TOPIC_TITLE_MAX_LENGTH_ERROR = "error.validate.topic.title.max-length";
+    public static final String TOPIC_CONTENT_REQUIRED_ERROR = "error.validate.topic.content.required";
+    public static final String TOPIC_ATTACHMENT_URL_REQUIRED_ERROR = "error.validate.topic-attachment.url.required";
+    public static final String TOPIC_ATTACHMENT_NAME_REQUIRED_ERROR = "error.validate.topic-attachment.name.required";
+
+    public static final String FILE_REQUIRED_ERROR = "error.validate.file.required";
+    public static final String FILE_MAX_SIZE_ERROR = "error.validate.file.max-size";
+    public static final String FILE_NAME_INVALID_ERROR = "error.validate.file.name.invalid";
+    public static final String FILE_TYPE_NOT_SUPPORTED_ERROR = "error.validate.file.type.not-supported";
+    public static final String MAX_FILE_UPLOAD_ERROR = "error.validate.file.max-upload";
+
+    public static final String URL_INVALID_ERROR = "error.validate.url.invalid";
+
 }
 
