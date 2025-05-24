@@ -1,5 +1,6 @@
 package com.backend.study_hub_api.model;
 
+import com.backend.study_hub_api.helper.enumeration.CategoryType;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
@@ -25,6 +26,10 @@ public class Category {
 
     @Column(name = "is_active")
     private Boolean isActive = true;
+
+    @Column(name = "type", nullable = false)
+    @Enumerated(EnumType.STRING)
+    private CategoryType type;
 
     @Column(name = "created_at")
     private Instant createdAt;

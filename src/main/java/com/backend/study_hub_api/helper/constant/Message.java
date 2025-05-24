@@ -46,6 +46,7 @@ public class Message {
     public static final String CATEGORY_NAME_ALREADY_EXISTS = "error.category.already-exists";
     public static final String CATEGORY_NAME_REQUIRED_ERROR = "error.validate.category.name.required";
     public static final String CATEGORY_NAME_LENGTH_ERROR = "error.validate.category.name.length";
+    public static final String CATEGORY_TYPE_REQUIRED_ERROR = "error.validate.category.type.required";
 
     public static final String TOPIC_NOT_FOUND_ERROR = "error.topic.not-found";
     public static final String TOPIC_NOT_AUTHORIZED_ERROR = "error.topic.not-authorized";

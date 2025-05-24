@@ -1,15 +1,19 @@
 package com.backend.study_hub_api.service.impl;
 
 import com.backend.study_hub_api.dto.CategoryDTO;
+import com.backend.study_hub_api.dto.common.PaginationDTO;
 import com.backend.study_hub_api.helper.exception.BadRequestException;
+import com.backend.study_hub_api.helper.util.PaginationUtils;
 import com.backend.study_hub_api.model.Category;
 import com.backend.study_hub_api.repository.CategoryRepository;
 import com.backend.study_hub_api.service.CategoryService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 
@@ -32,6 +36,7 @@ public class CategoryServiceImpl implements CategoryService {
 
         Category category = Category.builder()
                                     .name(request.getName())
+                                    .type(request.getType())
                                     .isActive(true)
                                     .build();
 
@@ -47,11 +52,11 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
-    public List<CategoryDTO.CategoryResponse> getAllCategories() {
-        return categoryRepository.findAllSortedByName()
-                                 .stream()
-                                 .map(this::mapToDTO)
-                                 .toList();
+    public PaginationDTO<CategoryDTO.CategoryResponse> getAllCategories(Pageable pageable) {
+        Page<CategoryDTO.CategoryResponse> categories = categoryRepository.findAll(pageable)
+                                                                          .map(this::mapToDTO);
+
+        return PaginationUtils.createPaginationResponse(categories);
     }
 
     @Override
@@ -73,6 +78,7 @@ public class CategoryServiceImpl implements CategoryService {
         }
 
         category.setName(request.getName());
+        category.setType(request.getType());
         if (request.getIsActive() != null) {
             category.setIsActive(request.getIsActive());
         }
@@ -96,6 +102,7 @@ public class CategoryServiceImpl implements CategoryService {
         return CategoryDTO.CategoryResponse.builder()
                                            .id(category.getId())
                                            .name(category.getName())
+                                           .type(category.getType())
                                            .isActive(category.getIsActive())
                                            .createdAt(category.getCreatedAt())
                                            .updatedAt(category.getUpdatedAt())

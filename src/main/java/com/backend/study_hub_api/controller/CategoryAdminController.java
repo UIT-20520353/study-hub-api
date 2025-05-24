@@ -1,15 +1,17 @@
 package com.backend.study_hub_api.controller;
 
 import com.backend.study_hub_api.dto.CategoryDTO;
+import com.backend.study_hub_api.dto.common.PaginationDTO;
 import com.backend.study_hub_api.service.CategoryService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
+import org.springframework.data.domain.Pageable;
+import org.springdoc.core.annotations.ParameterObject;
 
 @RestController
 @RequestMapping("/api/admin/categories")
@@ -34,8 +36,8 @@ public class CategoryAdminController {
 
     @GetMapping
     @Operation(summary = "Get all categories", description = "Retrieve all categories (including inactive)")
-    public ResponseEntity<List<CategoryDTO.CategoryResponse>> getAllCategories() {
-        return ResponseEntity.ok(categoryService.getAllCategories());
+    public ResponseEntity<PaginationDTO<CategoryDTO.CategoryResponse>> getAllCategories(@ParameterObject @PageableDefault Pageable pageable) {
+        return ResponseEntity.ok(categoryService.getAllCategories(pageable));
     }
 
     @PutMapping("/{id}")

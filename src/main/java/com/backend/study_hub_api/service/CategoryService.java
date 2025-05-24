@@ -1,7 +1,9 @@
 package com.backend.study_hub_api.service;
 
 import com.backend.study_hub_api.dto.CategoryDTO;
+import com.backend.study_hub_api.dto.common.PaginationDTO;
 import com.backend.study_hub_api.model.Category;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 
@@ -11,7 +13,7 @@ public interface CategoryService {
 
     CategoryDTO.CategoryResponse getCategoryById(Long id);
 
-    List<CategoryDTO.CategoryResponse> getAllCategories();
+    PaginationDTO<CategoryDTO.CategoryResponse> getAllCategories(Pageable pageable);
 
     List<CategoryDTO.CategoryResponse> getActiveCategories();
 
