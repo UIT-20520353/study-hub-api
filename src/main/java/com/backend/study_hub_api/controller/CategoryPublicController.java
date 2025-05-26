@@ -1,14 +1,14 @@
 package com.backend.study_hub_api.controller;
 
 import com.backend.study_hub_api.dto.CategoryDTO;
+import com.backend.study_hub_api.dto.common.PaginationDTO;
+import com.backend.study_hub_api.dto.criteria.CategoryFilterCriteria;
 import com.backend.study_hub_api.service.CategoryService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/common/categories")
@@ -19,9 +19,11 @@ public class CategoryPublicController {
     private final CategoryService categoryService;
 
     @GetMapping
-    @Operation(summary = "Get active categories", description = "Retrieve all active categories for public use")
-    public ResponseEntity<List<CategoryDTO.CategoryResponse>> getActiveCategories() {
-        return ResponseEntity.ok(categoryService.getActiveCategories());
+    @Operation(summary = "Get categories with filter and pagination",
+               description = "Retrieve categories with optional filters and pagination")
+    public ResponseEntity<PaginationDTO<CategoryDTO.CategoryResponse>> getCategories(
+            @ModelAttribute CategoryFilterCriteria criteria) {
+        return ResponseEntity.ok(categoryService.getCategoriesWithFilter(criteria));
     }
 
     @GetMapping("/{id}")

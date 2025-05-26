@@ -67,6 +67,31 @@ public class User {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
     private List<UserSession> sessions;
 
+    @JsonIgnore
+    @ToString.Exclude
+    @OneToMany(mappedBy = "author", fetch = FetchType.LAZY)
+    private List<Topic> topics;
+
+    @JsonIgnore
+    @ToString.Exclude
+    @OneToMany(mappedBy = "author", fetch = FetchType.LAZY)
+    private List<TopicComment> comments;
+
+    @JsonIgnore
+    @ToString.Exclude
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
+    private List<TopicReaction> topicReactions;
+
+    @JsonIgnore
+    @ToString.Exclude
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
+    private List<CommentReaction> commentReactions;
+
+    @JsonIgnore
+    @ToString.Exclude
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
+    private List<TopicFollower> followedTopics;
+
     public void setNewSession(UserSession session) {
         session.setUser(this);
         this.sessions.clear();

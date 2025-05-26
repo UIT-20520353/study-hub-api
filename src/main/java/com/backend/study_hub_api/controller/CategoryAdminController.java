@@ -2,6 +2,7 @@ package com.backend.study_hub_api.controller;
 
 import com.backend.study_hub_api.dto.CategoryDTO;
 import com.backend.study_hub_api.dto.common.PaginationDTO;
+import com.backend.study_hub_api.dto.criteria.CategoryFilterCriteria;
 import com.backend.study_hub_api.service.CategoryService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -36,8 +37,8 @@ public class CategoryAdminController {
 
     @GetMapping
     @Operation(summary = "Get all categories", description = "Retrieve all categories (including inactive)")
-    public ResponseEntity<PaginationDTO<CategoryDTO.CategoryResponse>> getAllCategories(@ParameterObject @PageableDefault Pageable pageable) {
-        return ResponseEntity.ok(categoryService.getAllCategories(pageable));
+    public ResponseEntity<PaginationDTO<CategoryDTO.CategoryResponse>> getAllCategories(@ModelAttribute CategoryFilterCriteria criteria) {
+        return ResponseEntity.ok(categoryService.getCategoriesWithFilter(criteria));
     }
 
     @PutMapping("/{id}")

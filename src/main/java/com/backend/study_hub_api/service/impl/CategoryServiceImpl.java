@@ -2,11 +2,15 @@ package com.backend.study_hub_api.service.impl;
 
 import com.backend.study_hub_api.dto.CategoryDTO;
 import com.backend.study_hub_api.dto.common.PaginationDTO;
+import com.backend.study_hub_api.dto.criteria.CategoryFilterCriteria;
 import com.backend.study_hub_api.helper.exception.BadRequestException;
 import com.backend.study_hub_api.helper.util.PaginationUtils;
 import com.backend.study_hub_api.model.Category;
 import com.backend.study_hub_api.repository.CategoryRepository;
+import com.backend.study_hub_api.service.BaseFilterService;
 import com.backend.study_hub_api.service.CategoryService;
+import com.backend.study_hub_api.specification.BaseSpecificationBuilder;
+import com.backend.study_hub_api.specification.CategorySpecification;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -14,8 +18,10 @@ import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
 import java.util.List;
+import java.util.function.Function;
 
 import static com.backend.study_hub_api.helper.constant.Message.CATEGORY_NAME_ALREADY_EXISTS;
 import static com.backend.study_hub_api.helper.constant.Message.CATEGORY_NOT_FOUND;
@@ -23,9 +29,11 @@ import static com.backend.study_hub_api.helper.constant.Message.CATEGORY_NOT_FOU
 @Service
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @RequiredArgsConstructor
-public class CategoryServiceImpl implements CategoryService {
+public class CategoryServiceImpl extends BaseFilterService<Category, Long, CategoryFilterCriteria, CategoryDTO.CategoryResponse>
+        implements CategoryService {
 
     CategoryRepository categoryRepository;
+    CategorySpecification categorySpecification;
 
     @Override
     @Transactional
@@ -108,4 +116,25 @@ public class CategoryServiceImpl implements CategoryService {
                                            .updatedAt(category.getUpdatedAt())
                                            .build();
     }
+
+    @Override
+    public PaginationDTO<CategoryDTO.CategoryResponse> getCategoriesWithFilter(CategoryFilterCriteria criteria) {
+        return getWithFilter(criteria);
+    }
+
+    @Override
+    protected JpaSpecificationExecutor<Category> getRepository() {
+        return categoryRepository;
+    }
+
+    @Override
+    protected BaseSpecificationBuilder<Category, CategoryFilterCriteria> getSpecificationBuilder() {
+        return categorySpecification;
+    }
+
+    @Override
+    protected Function<Category, CategoryDTO.CategoryResponse> getEntityToDtoMapper() {
+        return this::mapToDTO;
+    }
+
 }
