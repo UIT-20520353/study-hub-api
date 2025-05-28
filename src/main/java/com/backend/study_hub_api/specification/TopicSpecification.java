@@ -2,98 +2,143 @@ package com.backend.study_hub_api.specification;
 
 import com.backend.study_hub_api.dto.criteria.TopicFilterCriteria;
 import com.backend.study_hub_api.model.Topic;
-import jakarta.persistence.criteria.*;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.Join;
+import jakarta.persistence.criteria.JoinType;
+import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.Root;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
 @Component
-public class TopicSpecification extends BaseSpecificationBuilder<Topic, TopicFilterCriteria> {
+public class TopicSpecification {
 
-    @Override
-    protected void addSpecificPredicates(List<Predicate> predicates, TopicFilterCriteria criteria,
-                                         Root<Topic> root, CriteriaBuilder criteriaBuilder) {
+    private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
 
-        // Filter by title
-        if (criteria.getTitle() != null && !criteria.getTitle().trim().isEmpty()) {
+    public Specification<Topic> build(TopicFilterCriteria criteria) {
+        return (root, query, criteriaBuilder) -> {
+            List<Predicate> predicates = new ArrayList<>();
+
+            // Add Topic-specific predicates
+            addTopicPredicates(predicates, criteria, root, criteriaBuilder);
+
+            // Add common date range predicates
+            addCommonDatePredicates(predicates, criteria, root, criteriaBuilder);
+
+            // Add search predicates
+            if (StringUtils.hasText(criteria.getSearchKeyword())) {
+                List<Predicate> searchPredicates = buildSearchPredicates(
+                        criteria.getSearchKeyword(), root, criteriaBuilder);
+                if (!searchPredicates.isEmpty()) {
+                    predicates.add(criteriaBuilder.or(searchPredicates.toArray(new Predicate[0])));
+                }
+            }
+
+            return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
+        };
+    }
+
+    private void addTopicPredicates(List<Predicate> predicates, TopicFilterCriteria criteria,
+                                    Root<Topic> root, CriteriaBuilder criteriaBuilder) {
+
+        // Text filters
+        if (StringUtils.hasText(criteria.getTitle())) {
             predicates.add(likeIgnoreCase(criteriaBuilder, root.get("title"), criteria.getTitle()));
         }
 
-        // Filter by author ID
+        if (StringUtils.hasText(criteria.getContent())) {
+            predicates.add(likeIgnoreCase(criteriaBuilder, root.get("content"), criteria.getContent()));
+        }
+
+        // Author filters
         if (criteria.getAuthorId() != null) {
             predicates.add(criteriaBuilder.equal(root.get("author").get("id"), criteria.getAuthorId()));
         }
 
-        // Filter by author name
-        if (criteria.getAuthorName() != null && !criteria.getAuthorName().trim().isEmpty()) {
+        if (StringUtils.hasText(criteria.getAuthorName())) {
             Join<Object, Object> authorJoin = root.join("author", JoinType.LEFT);
             predicates.add(likeIgnoreCase(criteriaBuilder, authorJoin.get("fullName"), criteria.getAuthorName()));
         }
 
-        // Filter by category ID
+        // Category filters
         if (criteria.getCategoryId() != null) {
             predicates.add(criteriaBuilder.equal(root.get("category").get("id"), criteria.getCategoryId()));
         }
 
-        // Filter by university ID
+        if (StringUtils.hasText(criteria.getCategoryName())) {
+            Join<Object, Object> categoryJoin = root.join("category", JoinType.LEFT);
+            predicates.add(likeIgnoreCase(criteriaBuilder, categoryJoin.get("name"), criteria.getCategoryName()));
+        }
+
+        // University filters
         if (criteria.getUniversityId() != null) {
             predicates.add(criteriaBuilder.equal(root.get("university").get("id"), criteria.getUniversityId()));
         }
 
-        // Filter by statuses
+        if (StringUtils.hasText(criteria.getUniversityName())) {
+            Join<Object, Object> universityJoin = root.join("university", JoinType.LEFT);
+            predicates.add(likeIgnoreCase(criteriaBuilder, universityJoin.get("name"), criteria.getUniversityName()));
+        }
+
+        // Enum filters
         if (criteria.getStatuses() != null && !criteria.getStatuses().isEmpty()) {
             predicates.add(root.get("status").in(criteria.getStatuses()));
         }
 
-        // Filter by visibilities
         if (criteria.getVisibilities() != null && !criteria.getVisibilities().isEmpty()) {
             predicates.add(root.get("visibility").in(criteria.getVisibilities()));
         }
 
-        // Filter by locked status
+        // Boolean filters
         if (criteria.getIsLocked() != null) {
             predicates.add(criteriaBuilder.equal(root.get("isLocked"), criteria.getIsLocked()));
         }
 
-        // Filter by view count range
+        if (criteria.getHasAttachments() != null) {
+            if (criteria.getHasAttachments()) {
+                // Has attachments
+                predicates.add(criteriaBuilder.isNotEmpty(root.get("attachments")));
+            } else {
+                // No attachments
+                predicates.add(criteriaBuilder.isEmpty(root.get("attachments")));
+            }
+        }
+
+        // Numeric range filters
         if (criteria.getMinViewCount() != null) {
             predicates.add(criteriaBuilder.greaterThanOrEqualTo(root.get("viewCount"), criteria.getMinViewCount()));
         }
+
         if (criteria.getMaxViewCount() != null) {
             predicates.add(criteriaBuilder.lessThanOrEqualTo(root.get("viewCount"), criteria.getMaxViewCount()));
         }
 
-        // Filter by like count range
-        if (criteria.getMinLikeCount() != null) {
-            predicates.add(criteriaBuilder.greaterThanOrEqualTo(root.get("likeCount"), criteria.getMinLikeCount()));
-        }
-        if (criteria.getMaxLikeCount() != null) {
-            predicates.add(criteriaBuilder.lessThanOrEqualTo(root.get("likeCount"), criteria.getMaxLikeCount()));
-        }
-
-        // Filter by comment count range
         if (criteria.getMinCommentCount() != null) {
             predicates.add(criteriaBuilder.greaterThanOrEqualTo(root.get("commentCount"), criteria.getMinCommentCount()));
         }
+
         if (criteria.getMaxCommentCount() != null) {
             predicates.add(criteriaBuilder.lessThanOrEqualTo(root.get("commentCount"), criteria.getMaxCommentCount()));
         }
 
-        // Filter by has comments
-        if (criteria.getHasComments() != null) {
-            if (criteria.getHasComments()) {
-                predicates.add(criteriaBuilder.greaterThan(root.get("commentCount"), 0));
-            } else {
-                predicates.add(criteriaBuilder.equal(root.get("commentCount"), 0));
-            }
+        if (criteria.getMinLikeCount() != null) {
+            predicates.add(criteriaBuilder.greaterThanOrEqualTo(root.get("likeCount"), criteria.getMinLikeCount()));
         }
 
-        // Filter by last activity date range
-        if (criteria.getLastActivityFrom() != null) {
+        if (criteria.getMaxLikeCount() != null) {
+            predicates.add(criteriaBuilder.lessThanOrEqualTo(root.get("likeCount"), criteria.getMaxLikeCount()));
+        }
+
+        // Last activity date range
+        if (StringUtils.hasText(criteria.getLastActivityFrom())) {
             try {
                 Instant fromDate = LocalDateTime.parse(criteria.getLastActivityFrom(), DATE_FORMATTER)
                                                 .toInstant(ZoneOffset.UTC);
@@ -103,7 +148,7 @@ public class TopicSpecification extends BaseSpecificationBuilder<Topic, TopicFil
             }
         }
 
-        if (criteria.getLastActivityTo() != null) {
+        if (StringUtils.hasText(criteria.getLastActivityTo())) {
             try {
                 Instant toDate = LocalDateTime.parse(criteria.getLastActivityTo(), DATE_FORMATTER)
                                               .toInstant(ZoneOffset.UTC);
@@ -112,56 +157,34 @@ public class TopicSpecification extends BaseSpecificationBuilder<Topic, TopicFil
                 // Log error or handle invalid date format
             }
         }
+    }
 
-        // Filter by has attachments
-        if (criteria.getHasAttachments() != null) {
-            Subquery<Long> attachmentSubquery = criteriaBuilder.createQuery().subquery(Long.class);
-            Root<Topic> attachmentRoot = attachmentSubquery.from(Topic.class);
-            attachmentSubquery.select(criteriaBuilder.count(attachmentRoot.get("attachments")))
-                              .where(criteriaBuilder.equal(attachmentRoot.get("id"), root.get("id")));
-
-            if (criteria.getHasAttachments()) {
-                predicates.add(criteriaBuilder.greaterThan(attachmentSubquery, 0L));
-            } else {
-                predicates.add(criteriaBuilder.equal(attachmentSubquery, 0L));
+    private void addCommonDatePredicates(List<Predicate> predicates, TopicFilterCriteria criteria,
+                                         Root<Topic> root, CriteriaBuilder criteriaBuilder) {
+        // Filter by date range
+        if (StringUtils.hasText(criteria.getCreatedFrom())) {
+            try {
+                Instant fromDate = LocalDateTime.parse(criteria.getCreatedFrom(), DATE_FORMATTER)
+                                                .toInstant(ZoneOffset.UTC);
+                predicates.add(criteriaBuilder.greaterThanOrEqualTo(root.get("createdAt"), fromDate));
+            } catch (Exception e) {
+                // Log error or handle invalid date format
             }
         }
 
-        // Filter topics followed by current user
-        if (criteria.getFollowedByCurrentUser() != null && criteria.getFollowedByCurrentUser() && criteria.getCurrentUserId() != null) {
-            Subquery<Long> followSubquery = criteriaBuilder.createQuery().subquery(Long.class);
-            Root<Topic> followRoot = followSubquery.from(Topic.class);
-            Join<Object, Object> followersJoin = followRoot.join("followers", JoinType.INNER);
-
-            followSubquery.select(followRoot.get("id"))
-                          .where(criteriaBuilder.and(
-                                  criteriaBuilder.equal(followRoot.get("id"), root.get("id")),
-                                  criteriaBuilder.equal(followersJoin.get("user").get("id"), criteria.getCurrentUserId())
-                          ));
-
-            predicates.add(criteriaBuilder.exists(followSubquery));
-        }
-
-        // Filter topics liked by current user
-        if (criteria.getLikedByCurrentUser() != null && criteria.getLikedByCurrentUser() && criteria.getCurrentUserId() != null) {
-            Subquery<Long> likeSubquery = criteriaBuilder.createQuery().subquery(Long.class);
-            Root<Topic> likeRoot = likeSubquery.from(Topic.class);
-            Join<Object, Object> reactionsJoin = likeRoot.join("reactions", JoinType.INNER);
-
-            likeSubquery.select(likeRoot.get("id"))
-                        .where(criteriaBuilder.and(
-                                criteriaBuilder.equal(likeRoot.get("id"), root.get("id")),
-                                criteriaBuilder.equal(reactionsJoin.get("user").get("id"), criteria.getCurrentUserId()),
-                                criteriaBuilder.equal(reactionsJoin.get("reactionType"), "LIKE")
-                        ));
-
-            predicates.add(criteriaBuilder.exists(likeSubquery));
+        if (StringUtils.hasText(criteria.getCreatedTo())) {
+            try {
+                Instant toDate = LocalDateTime.parse(criteria.getCreatedTo(), DATE_FORMATTER)
+                                              .toInstant(ZoneOffset.UTC);
+                predicates.add(criteriaBuilder.lessThanOrEqualTo(root.get("createdAt"), toDate));
+            } catch (Exception e) {
+                // Log error or handle invalid date format
+            }
         }
     }
 
-    @Override
-    protected List<Predicate> buildSearchPredicates(String keyword, Root<Topic> root,
-                                                    CriteriaBuilder criteriaBuilder) {
+    private List<Predicate> buildSearchPredicates(String keyword, Root<Topic> root,
+                                                  CriteriaBuilder criteriaBuilder) {
         List<Predicate> searchPredicates = new ArrayList<>();
 
         // Search in title
@@ -179,5 +202,17 @@ public class TopicSpecification extends BaseSpecificationBuilder<Topic, TopicFil
         searchPredicates.add(likeIgnoreCase(criteriaBuilder, categoryJoin.get("name"), keyword));
 
         return searchPredicates;
+    }
+
+    /**
+     * Helper method for case-insensitive partial match
+     */
+    private Predicate likeIgnoreCase(CriteriaBuilder criteriaBuilder,
+                                     jakarta.persistence.criteria.Expression<String> expression,
+                                     String value) {
+        return criteriaBuilder.like(
+                criteriaBuilder.lower(expression),
+                "%" + value.toLowerCase() + "%"
+        );
     }
 }

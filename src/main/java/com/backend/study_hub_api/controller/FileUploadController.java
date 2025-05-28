@@ -14,6 +14,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
+import static com.backend.study_hub_api.service.impl.FileUploadServiceImpl.DEFAULT_ALLOWED_IMAGE_TYPES;
+
 @RestController
 @RequestMapping("/api/user/files")
 @RequiredArgsConstructor
@@ -31,7 +33,7 @@ public class FileUploadController {
             @Parameter(description = "Folder path in S3 bucket", example = "products")
             @RequestParam(value = "folder", defaultValue = "uploads") String folder) {
 
-        FileUploadDTO.FileUploadResponse response = fileUploadService.uploadFile(file, folder);
+        FileUploadDTO.FileUploadResponse response = fileUploadService.uploadFile(file, folder, DEFAULT_ALLOWED_IMAGE_TYPES);
         return ResponseEntity.ok(response);
     }
 
@@ -43,7 +45,7 @@ public class FileUploadController {
             @Parameter(description = "Folder path in S3 bucket", example = "products")
             @RequestParam(value = "folder", defaultValue = "uploads") String folder) {
 
-        FileUploadDTO.MultipleFileUploadResponse response = fileUploadService.uploadMultipleFiles(files, folder);
+        FileUploadDTO.MultipleFileUploadResponse response = fileUploadService.uploadMultipleFiles(files, folder, DEFAULT_ALLOWED_IMAGE_TYPES);
         return ResponseEntity.ok(response);
     }
 
@@ -52,7 +54,7 @@ public class FileUploadController {
             @Parameter(description = "Product image files", required = true)
             @RequestParam("files") List<MultipartFile> files) {
 
-        FileUploadDTO.MultipleFileUploadResponse response = fileUploadService.uploadMultipleFiles(files, "products");
+        FileUploadDTO.MultipleFileUploadResponse response = fileUploadService.uploadMultipleFiles(files, "products", DEFAULT_ALLOWED_IMAGE_TYPES);
         return ResponseEntity.ok(response);
     }
 
@@ -61,7 +63,7 @@ public class FileUploadController {
             @Parameter(description = "Avatar image file", required = true)
             @RequestParam("file") MultipartFile file) {
 
-        FileUploadDTO.FileUploadResponse response = fileUploadService.uploadFile(file, "avatars");
+        FileUploadDTO.FileUploadResponse response = fileUploadService.uploadFile(file, "avatars", DEFAULT_ALLOWED_IMAGE_TYPES);
         return ResponseEntity.ok(response);
     }
 

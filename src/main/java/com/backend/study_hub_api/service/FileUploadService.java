@@ -13,7 +13,7 @@ public interface FileUploadService {
      * @param folder Folder path in S3 bucket (e.g., "products", "avatars")
      * @return FileUploadResponse containing file URL and metadata
      */
-    FileUploadDTO.FileUploadResponse uploadFile(MultipartFile file, String folder);
+    FileUploadDTO.FileUploadResponse uploadFile(MultipartFile file, String folder, String[] allowedTypes);
 
     /**
      * Upload multiple files to S3
@@ -21,7 +21,7 @@ public interface FileUploadService {
      * @param folder Folder path in S3 bucket
      * @return MultipleFileUploadResponse containing list of uploaded files
      */
-    FileUploadDTO.MultipleFileUploadResponse uploadMultipleFiles(List<MultipartFile> files, String folder);
+    FileUploadDTO.MultipleFileUploadResponse uploadMultipleFiles(List<MultipartFile> files, String folder, String[] allowedTypes);
 
     /**
      * Delete file from S3

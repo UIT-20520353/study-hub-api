@@ -84,4 +84,10 @@ public class UserServiceImpl implements UserService {
                 .isVerified(user.getIsVerified())
                 .build();
     }
+
+    @Override
+    public User getUserByIdOrThrow(Long id) {
+        return userRepository.findById(id)
+                .orElseThrow(() -> new BadRequestException(USER_NOT_FOUND_ERROR));
+    }
 }

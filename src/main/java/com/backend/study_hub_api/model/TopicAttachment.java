@@ -32,7 +32,7 @@ public class TopicAttachment {
     private String fileType;
 
     @Column(name = "file_size")
-    private Integer fileSize;
+    private Long fileSize;
 
     @Column(name = "created_at")
     private Instant createdAt;

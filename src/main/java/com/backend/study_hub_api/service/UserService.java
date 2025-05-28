@@ -19,4 +19,6 @@ public interface UserService {
 
     UserDTO mapToDTO(User user);
 
+    User getUserByIdOrThrow(Long id);
+
 }

@@ -17,4 +17,6 @@ public interface UniversityService {
     void deleteUniversity(Long id);
 
     UniversityDTO.UniversityResponse mapToDTO(University university);
+
+    University getUniversityByIdOrThrow(Long id);
 }

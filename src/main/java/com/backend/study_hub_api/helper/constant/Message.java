@@ -23,6 +23,7 @@ public class Message {
     public static final String PASSWORD_REQUIRED_ERROR = "error.validate.password.required";
     public static final String PASSWORD_MIN_LENGTH_ERROR = "error.validate.password.min-length";
     public static final String LOGIN_TYPE_REQUIRED_ERROR = "error.validate.login-type.required";
+    public static final String USER_NOT_AUTHENTICATED_ERROR = "error.user.not-authenticated";
 
     public static final String FULL_NAME_REQUIRED_ERROR = "error.validate.login-type.required";
 
@@ -55,6 +56,8 @@ public class Message {
     public static final String TOPIC_CONTENT_REQUIRED_ERROR = "error.validate.topic.content.required";
     public static final String TOPIC_ATTACHMENT_URL_REQUIRED_ERROR = "error.validate.topic-attachment.url.required";
     public static final String TOPIC_ATTACHMENT_NAME_REQUIRED_ERROR = "error.validate.topic-attachment.name.required";
+    public static final String TOPIC_ATTACHMENT_INVALID_TYPE_ERROR = "error.validate.topic-attachment.invalid-type";
+    public static final String TOPIC_UNIVERSITY_ID_REQUIRED_ERROR = "error.validate.topic.university-id.required";
 
     public static final String FILE_REQUIRED_ERROR = "error.validate.file.required";
     public static final String FILE_MAX_SIZE_ERROR = "error.validate.file.max-size";

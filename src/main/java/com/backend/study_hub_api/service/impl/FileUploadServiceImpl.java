@@ -33,7 +33,7 @@ public class FileUploadServiceImpl implements FileUploadService {
     S3Client s3Client;
     ApplicationProperties applicationProperties;
 
-    private static final String[] DEFAULT_ALLOWED_IMAGE_TYPES = {
+    public static final String[] DEFAULT_ALLOWED_IMAGE_TYPES = {
             "image/jpeg", "image/jpg", "image/png", "image/gif", "image/webp"
     };
 
@@ -46,13 +46,14 @@ public class FileUploadServiceImpl implements FileUploadService {
     private static final int DEFAULT_MAX_FILE_SIZE_MB = 10;
 
     @Override
-    public FileUploadDTO.FileUploadResponse uploadFile(MultipartFile file, String folder) {
+    public FileUploadDTO.FileUploadResponse uploadFile(MultipartFile file, String folder,
+                                                      String[] allowedTypes) {
         if (file == null || file.isEmpty()) {
             throw new BadRequestException(FILE_REQUIRED_ERROR);
         }
 
         // Validate file
-        validateFile(file, DEFAULT_ALLOWED_IMAGE_TYPES, DEFAULT_MAX_FILE_SIZE_MB);
+        validateFile(file, allowedTypes, DEFAULT_MAX_FILE_SIZE_MB);
 
         try {
             String fileName = generateUniqueFileName(file.getOriginalFilename());
@@ -89,7 +90,7 @@ public class FileUploadServiceImpl implements FileUploadService {
     }
 
     @Override
-    public FileUploadDTO.MultipleFileUploadResponse uploadMultipleFiles(List<MultipartFile> files, String folder) {
+    public FileUploadDTO.MultipleFileUploadResponse uploadMultipleFiles(List<MultipartFile> files, String folder, String[] allowedTypes) {
         if (files == null || files.isEmpty()) {
             throw new BadRequestException(FILE_REQUIRED_ERROR);
         }
@@ -100,7 +101,7 @@ public class FileUploadServiceImpl implements FileUploadService {
 
         List<FileUploadDTO.FileUploadResponse> uploadedFiles = files.stream()
                                                                     .filter(file -> !file.isEmpty())
-                                                                    .map(file -> uploadFile(file, folder))
+                                                                    .map(file -> uploadFile(file, folder, allowedTypes))
                                                                     .collect(Collectors.toList());
 
         return FileUploadDTO.MultipleFileUploadResponse.builder()

@@ -100,4 +100,10 @@ public class UniversityServiceImpl implements UniversityService {
                                                .updatedAt(university.getUpdatedAt())
                                                .build();
     }
+
+    @Override
+    public University getUniversityByIdOrThrow(Long id) {
+        return universityRepository.findById(id)
+                                   .orElseThrow(() -> new BadRequestException(UNIVERSITY_NOT_FOUND));
+    }
 }

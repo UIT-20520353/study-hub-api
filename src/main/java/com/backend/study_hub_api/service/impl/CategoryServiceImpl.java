@@ -137,4 +137,10 @@ public class CategoryServiceImpl extends BaseFilterService<Category, Long, Categ
         return this::mapToDTO;
     }
 
+    @Override
+    public Category getCategoryByIdOrThrow(Long id) {
+        return categoryRepository.findById(id)
+                                 .orElseThrow(() -> new BadRequestException(CATEGORY_NOT_FOUND));
+    }
+
 }
