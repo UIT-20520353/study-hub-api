@@ -11,7 +11,7 @@ public interface UserService {
 
     List<User> getAllUsers();
 
-//    User registerUser(AuthDTO.RegisterRequest request);
+    UserDTO registerUser(AuthDTO.RegisterRequest request);
 
     Optional<User> findByEmail(String email);
 
@@ -20,5 +20,7 @@ public interface UserService {
     UserDTO mapToDTO(User user);
 
     User getUserByIdOrThrow(Long id);
+
+    void verifyEmail(Long userId, String otpCode);
 
 }

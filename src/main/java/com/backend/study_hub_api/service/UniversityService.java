@@ -34,4 +34,6 @@ public interface UniversityService {
     UniversityDTO.UniversityResponse mapToDTO(University university);
 
     University getUniversityByIdOrThrow(Long id);
+
+    List<UniversityDTO.UniversityResponse> getAllActiveUniversities();
 }

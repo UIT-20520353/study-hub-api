@@ -19,6 +19,11 @@ public class Message {
     public static String BAD_REQUEST = "error.bad-request";
     public static String FORBIDDEN = "error.forbidden.access-denied";
 
+    // Email Related Errors
+    public static final String EMAIL_ALREADY_VERIFIED_ERROR = "error.email.already-verified";
+    public static final String EMAIL_INVALID_ERROR = "error.email.invalid";
+    public static final String EMAIL_VERIFICATION_FAILED_ERROR = "error.email.verification-failed";
+
     // Authentication & Authorization Errors
     public static final String EMAIL_REQUIRED_ERROR = "error.validate.email.required";
     public static final String EMAIL_FORMAT_ERROR = "error.validate.email.format";
@@ -27,11 +32,17 @@ public class Message {
     public static final String LOGIN_TYPE_REQUIRED_ERROR = "error.validate.login-type.required";
     public static final String USER_NOT_AUTHENTICATED_ERROR = "error.user.not-authenticated";
     public static final String INVALID_CREDENTIAL_ERR = "error.validate.login.invalid-credential";
+    public static final String UNIVERSITY_REQUIRED_ERROR = "error.validate.university.required";
+    public static final String ACCOUNT_ALREADY_VERIFIED_ERROR = "error.account.already-verified";
+    public static final String ACCOUNT_NOT_VERIFIED_ERROR = "error.account.not-verified";
+    public static final String ACCOUNT_BLOCKED_ERROR = "error.account.blocked";
 
     // User Related Errors
     public static final String USER_NOT_FOUND_ERROR = "error.user.not-found";
     public static final String USER_ALREADY_EXISTS = "error.user.already-exists";
+    public static final String USER_STUDENT_ID_EXISTS_ERROR = "error.user.student-id.exists";
     public static final String FULL_NAME_REQUIRED_ERROR = "error.validate.full-name.required";
+    public static final String EMAIL_DOMAIN_MISMATCH_ERROR = "error.validate.email.domain-mismatch";
     public static final String FIRST_NAME_REQUIRED_ERROR = "error.validate.first-name.required";
     public static final String LAST_NAME_REQUIRED_ERROR = "error.validate.last-name.required";
     public static final String DATE_OF_BIRTH_REQUIRED_ERROR = "error.validate.date-of-birth.required";
@@ -156,5 +167,11 @@ public class Message {
     // Search Related Errors
     public static final String SEARCH_KEYWORD_TOO_SHORT_ERROR = "error.validate.search.keyword.too-short";
     public static final String SEARCH_NO_RESULTS_ERROR = "error.search.no-results";
+
+    // Verification Related Errors
+    public static final String VERIFICATION_CODE_EXISTS_ERROR = "error.verification.code.exists";
+    public static final String VERIFICATION_CODE_SENT_FAILED_ERROR = "error.verification.code.send-failed";
+    public static final String CODE_REQUIRED_ERROR = "error.validate.code.required";
+    public static final String USER_ID_REQUIRED_ERROR = "error.validate.user-id.required";
 
 }

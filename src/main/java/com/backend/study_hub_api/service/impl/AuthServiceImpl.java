@@ -3,25 +3,23 @@ package com.backend.study_hub_api.service.impl;
 import com.backend.study_hub_api.config.jwt.GenerateJwtResult;
 import com.backend.study_hub_api.config.jwt.JwtProvider;
 import com.backend.study_hub_api.dto.AuthDTO;
+import com.backend.study_hub_api.dto.UserDTO;
+import com.backend.study_hub_api.helper.enumeration.VerificationType;
 import com.backend.study_hub_api.helper.exception.AuthenticationException;
+import com.backend.study_hub_api.helper.exception.BadRequestException;
 import com.backend.study_hub_api.model.User;
 import com.backend.study_hub_api.model.UserSession;
-import com.backend.study_hub_api.repository.UserSessionRepository;
 import com.backend.study_hub_api.service.AuthService;
 import com.backend.study_hub_api.service.UserService;
+import com.backend.study_hub_api.service.VerificationService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
-import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.Instant;
-import java.time.temporal.ChronoUnit;
-import java.util.UUID;
-
-import static com.backend.study_hub_api.helper.constant.Message.INVALID_CREDENTIAL_ERR;
+import static com.backend.study_hub_api.helper.constant.Message.*;
 
 @Service
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
@@ -31,6 +29,7 @@ public class AuthServiceImpl implements AuthService {
     UserService userService;
     PasswordEncoder passwordEncoder;
     JwtProvider jwtProvider;
+    VerificationService verificationService;
 
     @Override
     @Transactional
@@ -40,6 +39,14 @@ public class AuthServiceImpl implements AuthService {
 
         if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
             throw new AuthenticationException(INVALID_CREDENTIAL_ERR);
+        }
+
+        if (!user.getIsVerified()) {
+            throw new BadRequestException(ACCOUNT_NOT_VERIFIED_ERROR);
+        }
+
+        if (!user.getIsActive()) {
+            throw new BadRequestException(ACCOUNT_BLOCKED_ERROR);
         }
 
         GenerateJwtResult jwtTokens = jwtProvider.generateToken(user);
@@ -53,9 +60,27 @@ public class AuthServiceImpl implements AuthService {
                 .build();
     }
 
-//    @Override
-//    @Transactional
-//    public void register(AuthDTO.RegisterRequest request) {
-//        userService.registerUser(request);
-//    }
+    @Override
+    @Transactional
+    public UserDTO register(AuthDTO.RegisterRequest request) {
+        return userService.registerUser(request);
+    }
+
+    @Override
+    @Transactional
+    public void verifyEmail(Long userId, String code) {
+        userService.verifyEmail(userId, code);
+    }
+
+    @Override
+    @Transactional
+    public void resendVerificationEmail(Long userId) {
+        User user = userService.getUserByIdOrThrow(userId);
+
+        if (user.getIsVerified()) {
+            throw new BadRequestException(ACCOUNT_ALREADY_VERIFIED_ERROR);
+        }
+
+        verificationService.generateAndSendVerificationCode(user, VerificationType.EMAIL_VERIFICATION);
+    }
 }

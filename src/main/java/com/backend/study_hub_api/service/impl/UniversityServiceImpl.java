@@ -195,6 +195,14 @@ public class UniversityServiceImpl extends BaseFilterService<University, Long, U
     }
 
     @Override
+    public List<UniversityDTO.UniversityResponse> getAllActiveUniversities() {
+        return universityRepository.findAllActiveUniversities()
+                                   .stream()
+                                   .map(this::mapToDTO)
+                                   .toList();
+    }
+
+    @Override
     protected JpaSpecificationExecutor<University> getRepository() {
         return universityRepository;
     }

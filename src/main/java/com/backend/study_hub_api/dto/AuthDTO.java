@@ -29,7 +29,9 @@ public class AuthDTO {
         private String fullName;
 
         private String studentId;
-        private String university;
+
+        @NotBlank(message = UNIVERSITY_REQUIRED_ERROR)
+        private Long universityId;
         private String major;
         private Integer year;
         private String phone;
@@ -56,6 +58,26 @@ public class AuthDTO {
         private String token;
         private String tokenType;
         private UserDTO user;
+    }
+
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class VerifyEmailRequest {
+        @NotBlank(message = CODE_REQUIRED_ERROR)
+        private String code;
+        @NotBlank(message = USER_ID_REQUIRED_ERROR)
+        private Long userId;
+    }
+
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class ResendVerificationRequest {
+        @NotBlank(message = USER_ID_REQUIRED_ERROR)
+        private Long userId;
     }
 
 }

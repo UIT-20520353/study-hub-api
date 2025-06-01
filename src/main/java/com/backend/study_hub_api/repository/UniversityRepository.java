@@ -25,7 +25,7 @@ public interface UniversityRepository extends JpaRepository<University, Long>, J
 
     List<University> findByIsActiveTrueOrderByNameAsc();
 
-    @Query("SELECT u FROM University u WHERE u.status != 'DELETED' ORDER BY u.name ASC")
+    @Query("SELECT u FROM University u WHERE u.status != 'DELETED' AND u.status != 'INACTIVE' ORDER BY u.name ASC")
     List<University> findAllActiveUniversities();
 
     Optional<University> findByEmailDomainIgnoreCase(String emailDomain);
