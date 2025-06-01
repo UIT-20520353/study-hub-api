@@ -33,7 +33,9 @@ public class User {
     @Column(name = "full_name", nullable = false)
     private String fullName;
 
-    private String university;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "university_id")
+    private University university;
 
     private String major;
 

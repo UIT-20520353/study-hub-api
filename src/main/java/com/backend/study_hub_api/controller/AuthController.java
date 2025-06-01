@@ -16,11 +16,11 @@ public class AuthController {
 
     private final AuthService authService;
 
-    @PostMapping("/register")
-    public ResponseEntity<Void> register(@Valid @RequestBody AuthDTO.RegisterRequest request) {
-        authService.register(request);
-        return ResponseEntity.noContent().build();
-    }
+//    @PostMapping("/register")
+//    public ResponseEntity<Void> register(@Valid @RequestBody AuthDTO.RegisterRequest request) {
+//        authService.register(request);
+//        return ResponseEntity.noContent().build();
+//    }
 
     @PostMapping("/login")
     public ResponseEntity<AuthDTO.AuthResponse> login(@Valid @RequestBody AuthDTO.LoginRequest request) {

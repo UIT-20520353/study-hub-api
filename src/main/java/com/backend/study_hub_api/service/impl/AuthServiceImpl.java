@@ -53,9 +53,9 @@ public class AuthServiceImpl implements AuthService {
                 .build();
     }
 
-    @Override
-    @Transactional
-    public void register(AuthDTO.RegisterRequest request) {
-        userService.registerUser(request);
-    }
+//    @Override
+//    @Transactional
+//    public void register(AuthDTO.RegisterRequest request) {
+//        userService.registerUser(request);
+//    }
 }

@@ -11,7 +11,7 @@ public interface UserService {
 
     List<User> getAllUsers();
 
-    User registerUser(AuthDTO.RegisterRequest request);
+//    User registerUser(AuthDTO.RegisterRequest request);
 
     Optional<User> findByEmail(String email);
 

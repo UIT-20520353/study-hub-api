@@ -1,9 +1,12 @@
 package com.backend.study_hub_api.model;
 
+import com.backend.study_hub_api.helper.enumeration.UniversityStatus;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.Instant;
+import java.util.List;
 
 @Entity
 @Table(name = "t_universities")
@@ -26,6 +29,9 @@ public class University {
 
     private String address;
 
+    @Column(name = "email_domain", unique = true, nullable = false)
+    private String emailDomain;
+
     private String city;
 
     private String website;
@@ -43,6 +49,15 @@ public class University {
 
     @Column(name = "updated_at")
     private Instant updatedAt;
+
+    @Column(name = "status", nullable = false)
+    @Enumerated(EnumType.STRING)
+    private UniversityStatus status;
+
+    @JsonIgnore
+    @ToString.Exclude
+    @OneToMany(mappedBy = "university", fetch = FetchType.LAZY)
+    private List<User> users;
 
     @PrePersist
     protected void onCreate() {

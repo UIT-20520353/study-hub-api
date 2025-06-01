@@ -185,7 +185,7 @@ public class TopicDTO {
         private Long id;
         private String fullName;
         private String avatarUrl;
-        private String university;
+        private UniversityDTO.UniversityResponse university;
         private String major;
         private Integer year;
     }

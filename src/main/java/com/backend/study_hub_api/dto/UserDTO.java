@@ -15,7 +15,7 @@ public class UserDTO {
     private String email;
     private String fullName;
     private String studentId;
-    private String university;
+    private UniversityDTO.UniversityResponse university;
     private String major;
     private Integer year;
     private String avatarUrl;

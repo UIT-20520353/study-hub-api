@@ -3,6 +3,7 @@ package com.backend.study_hub_api.service.impl;
 import com.backend.study_hub_api.config.jwt.SecurityUtils;
 import com.backend.study_hub_api.dto.FileUploadDTO;
 import com.backend.study_hub_api.dto.TopicDTO;
+import com.backend.study_hub_api.dto.UniversityDTO;
 import com.backend.study_hub_api.dto.common.PaginationDTO;
 import com.backend.study_hub_api.dto.criteria.TopicFilterCriteria;
 import com.backend.study_hub_api.helper.enumeration.TopicStatus;
@@ -230,11 +231,18 @@ public class TopicServiceImpl implements TopicService {
 
     // ==================== MAPPING HELPERS ====================
     private TopicDTO.AuthorInfo mapToAuthorInfo(User author) {
+        UniversityDTO.UniversityResponse universityResponse;
+        if (author.getUniversity() != null) {
+            universityResponse = universityService.mapToDTO(author.getUniversity());
+        } else {
+            universityResponse = null; // Handle case where university is null
+        }
+
         return TopicDTO.AuthorInfo.builder()
                                   .id(author.getId())
                                   .fullName(author.getFullName())
                                   .avatarUrl(author.getAvatarUrl())
-                                  .university(author.getUniversity())
+                                  .university(universityResponse)
                                   .major(author.getMajor())
                                   .year(author.getYear())
                                   .build();
