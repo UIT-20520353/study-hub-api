@@ -24,6 +24,11 @@ public class AuthController {
                              .body(authService.register(request));
     }
 
+    @GetMapping("/verify-email/{userId}")
+    public ResponseEntity<UserDTO> verifyEmail(@PathVariable Long userId) {
+        return ResponseEntity.ok(authService.sendVerificationEmail(userId));
+    }
+
     @PostMapping("/verify-email")
     public ResponseEntity<Void> verifyEmail(
             @Valid @RequestBody AuthDTO.VerifyEmailRequest request) {

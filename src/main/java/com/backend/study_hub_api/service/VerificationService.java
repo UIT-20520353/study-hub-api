@@ -30,7 +30,7 @@ public class VerificationService {
     @Value("${app.verification.otp-length:6}")
     private int otpLength;
 
-    @Value("${app.verification.otp-expiry-minutes:10}")
+    @Value("${app.verification.otp-expiry-minutes:1}")
     private int otpExpiryMinutes;
 
     @Value("${app.verification.max-attempts:5}")

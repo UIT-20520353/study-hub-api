@@ -15,6 +15,7 @@ import com.backend.study_hub_api.service.VerificationService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,6 +25,7 @@ import static com.backend.study_hub_api.helper.constant.Message.*;
 @Service
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @RequiredArgsConstructor
+@Slf4j
 public class AuthServiceImpl implements AuthService {
 
     UserService userService;
@@ -41,13 +43,20 @@ public class AuthServiceImpl implements AuthService {
             throw new AuthenticationException(INVALID_CREDENTIAL_ERR);
         }
 
-        if (!user.getIsVerified()) {
-            throw new BadRequestException(ACCOUNT_NOT_VERIFIED_ERROR);
-        }
-
         if (!user.getIsActive()) {
             throw new BadRequestException(ACCOUNT_BLOCKED_ERROR);
         }
+
+        if (!user.getIsVerified()) {
+            return AuthDTO.AuthResponse.builder()
+                    .user(userService.mapToDTO(user))
+                    .message(ACCOUNT_NOT_VERIFIED_ERROR)
+                    .token("")
+                    .tokenType("")
+                    .build();
+        }
+
+
 
         GenerateJwtResult jwtTokens = jwtProvider.generateToken(user);
 
@@ -57,6 +66,7 @@ public class AuthServiceImpl implements AuthService {
                 .token(jwtTokens.accessToken())
                 .tokenType("Bearer")
                 .user(userService.mapToDTO(user))
+                .message("Login successful")
                 .build();
     }
 
@@ -82,5 +92,12 @@ public class AuthServiceImpl implements AuthService {
         }
 
         verificationService.generateAndSendVerificationCode(user, VerificationType.EMAIL_VERIFICATION);
+    }
+
+    @Override
+    public UserDTO sendVerificationEmail(Long userId) {
+        User user = userService.getUserByIdOrThrow(userId);
+        verificationService.generateAndSendVerificationCode(user, VerificationType.EMAIL_VERIFICATION);
+        return userService.mapToDTO(user);
     }
 }

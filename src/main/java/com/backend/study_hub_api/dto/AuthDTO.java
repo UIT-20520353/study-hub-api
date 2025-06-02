@@ -58,6 +58,7 @@ public class AuthDTO {
         private String token;
         private String tokenType;
         private UserDTO user;
+        private String message;
     }
 
     @Data

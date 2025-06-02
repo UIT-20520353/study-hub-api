@@ -16,7 +16,7 @@ public class VerificationCleanupTask {
     /**
      * Cleanup expired verification codes every hour
      */
-    @Scheduled(fixedRate = 3600000)
+    @Scheduled(cron = "0 0 */1 * * *")
     public void cleanupExpiredVerificationCodes() {
         try {
             log.info("Starting cleanup of expired verification codes");

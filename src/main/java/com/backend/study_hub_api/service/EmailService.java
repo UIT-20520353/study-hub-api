@@ -61,7 +61,7 @@ public class EmailService {
                 "Xin chào %s,\n\n" +
                 "Cảm ơn bạn đã đăng ký tài khoản tại %s!\n\n" +
                 "Mã xác nhận của bạn là: %s\n\n" +
-                "Mã này có hiệu lực trong vòng 10 phút.\n\n" +
+                "Mã này có hiệu lực trong vòng 1 phút.\n\n" +
                 "Nếu bạn không thực hiện đăng ký này, vui lòng bỏ qua email này.\n\n" +
                 "Trân trọng,\n" +
                 "Đội ngũ %s",

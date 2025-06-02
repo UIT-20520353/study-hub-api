@@ -8,4 +8,5 @@ public interface AuthService {
     UserDTO register(AuthDTO.RegisterRequest request);
     void verifyEmail(Long userId, String code);
     void resendVerificationEmail(Long userId);
+    UserDTO sendVerificationEmail(Long userId);
 }

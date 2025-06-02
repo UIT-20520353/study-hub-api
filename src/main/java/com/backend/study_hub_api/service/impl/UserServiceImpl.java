@@ -73,12 +73,6 @@ public class UserServiceImpl implements UserService {
 
         User savedUser = userRepository.save(user);
 
-        try {
-            verificationService.generateAndSendVerificationCode(savedUser, VerificationType.EMAIL_VERIFICATION);
-        } catch (Exception e) {
-            log.error("Failed to send verification email for user: {}", savedUser.getEmail(), e);
-        }
-
         return mapToDTO(savedUser);
     }
 
