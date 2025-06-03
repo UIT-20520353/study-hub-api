@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+import java.util.Set;
 
 @RestController
 @RequestMapping("/api/user/topics")
@@ -34,7 +35,8 @@ public class TopicController {
     public ResponseEntity<TopicDTO.TopicResponse> createTopic(
             @RequestParam("title") String title,
             @RequestParam("content") String content,
-            @RequestParam(value = "categoryId") Long categoryId,
+            // Thay đổi: Handle multiple category IDs thay vì single categoryId
+            @RequestParam(value = "categoryIds") Set<Long> categoryIds,
             @RequestParam("visibility") TopicVisibility visibility,
             @RequestParam(value = "universityId", required = false) Long universityId,
             @RequestParam(value = "attachments", required = false) List<MultipartFile> attachments
@@ -42,13 +44,12 @@ public class TopicController {
         TopicDTO.CreateTopicWithFilesRequest request = TopicDTO.CreateTopicWithFilesRequest.builder()
                 .title(title)
                 .content(content)
-                .categoryId(categoryId)
+                .categoryIds(categoryIds)
                 .visibility(visibility)
                 .universityId(universityId)
                 .attachments(attachments)
                 .build();
 
-        ;
         return ResponseEntity.ok(topicService.createTopic(request));
     }
 
@@ -71,8 +72,9 @@ public class TopicController {
             @Parameter(description = "Filter by author name")
             @RequestParam(required = false) String authorName,
 
-            @Parameter(description = "Filter by category ID")
-            @RequestParam(required = false) Long categoryId,
+            // Thay đổi: Support multiple category filters
+            @Parameter(description = "Filter by category IDs")
+            @RequestParam(required = false) List<Long> categoryIds,
 
             @Parameter(description = "Filter by category name")
             @RequestParam(required = false) String categoryName,
@@ -138,34 +140,34 @@ public class TopicController {
             @RequestParam(defaultValue = "DESC") String sortDirection) {
 
         TopicFilterCriteria criteria = TopicFilterCriteria.builder()
-                                                          .searchKeyword(searchKeyword)
-                                                          .title(title)
-                                                          .content(content)
-                                                          .authorId(authorId)
-                                                          .authorName(authorName)
-                                                          .categoryId(categoryId)
-                                                          .categoryName(categoryName)
-                                                          .universityId(universityId)
-                                                          .universityName(universityName)
-                                                          .statuses(statuses)
-                                                          .visibilities(visibilities)
-                                                          .isLocked(isLocked)
-                                                          .hasAttachments(hasAttachments)
-                                                          .minViewCount(minViewCount)
-                                                          .maxViewCount(maxViewCount)
-                                                          .minCommentCount(minCommentCount)
-                                                          .maxCommentCount(maxCommentCount)
-                                                          .minLikeCount(minLikeCount)
-                                                          .maxLikeCount(maxLikeCount)
-                                                          .createdFrom(createdFrom)
-                                                          .createdTo(createdTo)
-                                                          .lastActivityFrom(lastActivityFrom)
-                                                          .lastActivityTo(lastActivityTo)
-                                                          .page(page)
-                                                          .size(size)
-                                                          .sortBy(sortBy)
-                                                          .sortDirection(sortDirection)
-                                                          .build();
+                .searchKeyword(searchKeyword)
+                .title(title)
+                .content(content)
+                .authorId(authorId)
+                .authorName(authorName)
+                .categoryIds(categoryIds)
+                .categoryName(categoryName)
+                .universityId(universityId)
+                .universityName(universityName)
+                .statuses(statuses)
+                .visibilities(visibilities)
+                .isLocked(isLocked)
+                .hasAttachments(hasAttachments)
+                .minViewCount(minViewCount)
+                .maxViewCount(maxViewCount)
+                .minCommentCount(minCommentCount)
+                .maxCommentCount(maxCommentCount)
+                .minLikeCount(minLikeCount)
+                .maxLikeCount(maxLikeCount)
+                .createdFrom(createdFrom)
+                .createdTo(createdTo)
+                .lastActivityFrom(lastActivityFrom)
+                .lastActivityTo(lastActivityTo)
+                .page(page)
+                .size(size)
+                .sortBy(sortBy)
+                .sortDirection(sortDirection)
+                .build();
 
         PaginationDTO<TopicDTO.TopicResponse> response = topicService.getTopicsWithFilter(criteria);
         return ResponseEntity.ok(response);
@@ -245,13 +247,13 @@ public class TopicController {
             @RequestParam(defaultValue = "10") int size) {
 
         TopicFilterCriteria criteria = TopicFilterCriteria.builder()
-                                                          .categoryId(categoryId)
-                                                          .statuses(List.of(TopicStatus.ACTIVE))
-                                                          .page(page)
-                                                          .size(size)
-                                                          .sortBy("lastActivityAt")
-                                                          .sortDirection("DESC")
-                                                          .build();
+                .categoryIds(List.of(categoryId))
+                .statuses(List.of(TopicStatus.ACTIVE))
+                .page(page)
+                .size(size)
+                .sortBy("lastActivityAt")
+                .sortDirection("DESC")
+                .build();
 
         PaginationDTO<TopicDTO.TopicResponse> response = topicService.getTopicsWithFilter(criteria);
         return ResponseEntity.ok(response);
@@ -270,13 +272,13 @@ public class TopicController {
             @RequestParam(defaultValue = "10") int size) {
 
         TopicFilterCriteria criteria = TopicFilterCriteria.builder()
-                                                          .universityId(universityId)
-                                                          .statuses(List.of(TopicStatus.ACTIVE))
-                                                          .page(page)
-                                                          .size(size)
-                                                          .sortBy("lastActivityAt")
-                                                          .sortDirection("DESC")
-                                                          .build();
+                .universityId(universityId)
+                .statuses(List.of(TopicStatus.ACTIVE))
+                .page(page)
+                .size(size)
+                .sortBy("lastActivityAt")
+                .sortDirection("DESC")
+                .build();
 
         PaginationDTO<TopicDTO.TopicResponse> response = topicService.getTopicsWithFilter(criteria);
         return ResponseEntity.ok(response);
@@ -295,12 +297,12 @@ public class TopicController {
             @RequestParam(defaultValue = "10") int size) {
 
         TopicFilterCriteria criteria = TopicFilterCriteria.builder()
-                                                          .authorId(authorId)
-                                                          .page(page)
-                                                          .size(size)
-                                                          .sortBy("createdAt")
-                                                          .sortDirection("DESC")
-                                                          .build();
+                .authorId(authorId)
+                .page(page)
+                .size(size)
+                .sortBy("createdAt")
+                .sortDirection("DESC")
+                .build();
 
         PaginationDTO<TopicDTO.TopicResponse> response = topicService.getTopicsWithFilter(criteria);
         return ResponseEntity.ok(response);
@@ -326,13 +328,13 @@ public class TopicController {
             @RequestParam(defaultValue = "DESC") String sortDirection) {
 
         TopicFilterCriteria criteria = TopicFilterCriteria.builder()
-                                                          .searchKeyword(q)
-                                                          .statuses(List.of(TopicStatus.ACTIVE))
-                                                          .page(page)
-                                                          .size(size)
-                                                          .sortBy(sortBy)
-                                                          .sortDirection(sortDirection)
-                                                          .build();
+                .searchKeyword(q)
+                .statuses(List.of(TopicStatus.ACTIVE))
+                .page(page)
+                .size(size)
+                .sortBy(sortBy)
+                .sortDirection(sortDirection)
+                .build();
 
         PaginationDTO<TopicDTO.TopicResponse> response = topicService.getTopicsWithFilter(criteria);
         return ResponseEntity.ok(response);

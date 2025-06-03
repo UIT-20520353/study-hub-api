@@ -7,6 +7,7 @@ import jakarta.persistence.criteria.Join;
 import jakarta.persistence.criteria.JoinType;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
+import jakarta.persistence.criteria.Subquery;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
@@ -42,6 +43,9 @@ public class TopicSpecification {
                 }
             }
 
+            // Add category filters (many-to-many relationship)
+            addCategoryPredicates(predicates, criteria, root, query, criteriaBuilder);
+
             return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
         };
     }
@@ -66,16 +70,6 @@ public class TopicSpecification {
         if (StringUtils.hasText(criteria.getAuthorName())) {
             Join<Object, Object> authorJoin = root.join("author", JoinType.LEFT);
             predicates.add(likeIgnoreCase(criteriaBuilder, authorJoin.get("fullName"), criteria.getAuthorName()));
-        }
-
-        // Category filters
-        if (criteria.getCategoryId() != null) {
-            predicates.add(criteriaBuilder.equal(root.get("category").get("id"), criteria.getCategoryId()));
-        }
-
-        if (StringUtils.hasText(criteria.getCategoryName())) {
-            Join<Object, Object> categoryJoin = root.join("category", JoinType.LEFT);
-            predicates.add(likeIgnoreCase(criteriaBuilder, categoryJoin.get("name"), criteria.getCategoryName()));
         }
 
         // University filters
@@ -141,7 +135,7 @@ public class TopicSpecification {
         if (StringUtils.hasText(criteria.getLastActivityFrom())) {
             try {
                 Instant fromDate = LocalDateTime.parse(criteria.getLastActivityFrom(), DATE_FORMATTER)
-                                                .toInstant(ZoneOffset.UTC);
+                        .toInstant(ZoneOffset.UTC);
                 predicates.add(criteriaBuilder.greaterThanOrEqualTo(root.get("lastActivityAt"), fromDate));
             } catch (Exception e) {
                 // Log error or handle invalid date format
@@ -151,11 +145,47 @@ public class TopicSpecification {
         if (StringUtils.hasText(criteria.getLastActivityTo())) {
             try {
                 Instant toDate = LocalDateTime.parse(criteria.getLastActivityTo(), DATE_FORMATTER)
-                                              .toInstant(ZoneOffset.UTC);
+                        .toInstant(ZoneOffset.UTC);
                 predicates.add(criteriaBuilder.lessThanOrEqualTo(root.get("lastActivityAt"), toDate));
             } catch (Exception e) {
                 // Log error or handle invalid date format
             }
+        }
+    }
+
+    // Mới: Handle many-to-many category filtering
+    private void addCategoryPredicates(List<Predicate> predicates, TopicFilterCriteria criteria,
+                                       Root<Topic> root, jakarta.persistence.criteria.CriteriaQuery<?> query,
+                                       CriteriaBuilder criteriaBuilder) {
+
+        // Filter by category IDs (many-to-many)
+        if (criteria.hasCategoryFilter()) {
+            if (criteria.getRequireAllCategories() && criteria.hasMultipleCategories()) {
+                // AND logic: Topic must have ALL specified categories
+                for (Long categoryId : criteria.getCategoryIds()) {
+                    Subquery<Long> subquery = query.subquery(Long.class);
+                    Root<Topic> subRoot = subquery.from(Topic.class);
+                    Join<Object, Object> categoryJoin = subRoot.join("categories");
+
+                    subquery.select(subRoot.get("id"))
+                            .where(criteriaBuilder.and(
+                                    criteriaBuilder.equal(subRoot.get("id"), root.get("id")),
+                                    criteriaBuilder.equal(categoryJoin.get("id"), categoryId)
+                            ));
+
+                    predicates.add(criteriaBuilder.exists(subquery));
+                }
+            } else {
+                // OR logic: Topic must have AT LEAST ONE of specified categories
+                Join<Object, Object> categoryJoin = root.join("categories", JoinType.INNER);
+                predicates.add(categoryJoin.get("id").in(criteria.getCategoryIds()));
+            }
+        }
+
+        // Filter by category name
+        if (StringUtils.hasText(criteria.getCategoryName())) {
+            Join<Object, Object> categoryJoin = root.join("categories", JoinType.LEFT);
+            predicates.add(likeIgnoreCase(criteriaBuilder, categoryJoin.get("name"), criteria.getCategoryName()));
         }
     }
 
@@ -165,7 +195,7 @@ public class TopicSpecification {
         if (StringUtils.hasText(criteria.getCreatedFrom())) {
             try {
                 Instant fromDate = LocalDateTime.parse(criteria.getCreatedFrom(), DATE_FORMATTER)
-                                                .toInstant(ZoneOffset.UTC);
+                        .toInstant(ZoneOffset.UTC);
                 predicates.add(criteriaBuilder.greaterThanOrEqualTo(root.get("createdAt"), fromDate));
             } catch (Exception e) {
                 // Log error or handle invalid date format
@@ -175,7 +205,7 @@ public class TopicSpecification {
         if (StringUtils.hasText(criteria.getCreatedTo())) {
             try {
                 Instant toDate = LocalDateTime.parse(criteria.getCreatedTo(), DATE_FORMATTER)
-                                              .toInstant(ZoneOffset.UTC);
+                        .toInstant(ZoneOffset.UTC);
                 predicates.add(criteriaBuilder.lessThanOrEqualTo(root.get("createdAt"), toDate));
             } catch (Exception e) {
                 // Log error or handle invalid date format
@@ -197,8 +227,8 @@ public class TopicSpecification {
         Join<Object, Object> authorJoin = root.join("author", JoinType.LEFT);
         searchPredicates.add(likeIgnoreCase(criteriaBuilder, authorJoin.get("fullName"), keyword));
 
-        // Search in category name
-        Join<Object, Object> categoryJoin = root.join("category", JoinType.LEFT);
+        // Search in category names (many-to-many)
+        Join<Object, Object> categoryJoin = root.join("categories", JoinType.LEFT);
         searchPredicates.add(likeIgnoreCase(criteriaBuilder, categoryJoin.get("name"), keyword));
 
         return searchPredicates;

@@ -29,9 +29,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.backend.study_hub_api.helper.constant.Message.*;
@@ -70,7 +68,7 @@ public class TopicServiceImpl implements TopicService {
         log.info("Creating new topic with title: {}", request.getTitle());
 
         User currentUser = getCurrentAuthenticatedUser();
-        Category category = getCategoryForTopic(request.getCategoryId());
+        Set<Category> categories = getCategoriesForTopic(request.getCategoryIds());
         University university = getUniversityForTopic(request);
 
         validateFileAttachments(request.getAttachments());
@@ -78,7 +76,7 @@ public class TopicServiceImpl implements TopicService {
         List<FileUploadDTO.FileUploadResponse> uploadedFiles = uploadTopicAttachments(request.getAttachments());
 
         try {
-            Topic topic = createAndSaveTopic(request, currentUser, category, university);
+            Topic topic = createAndSaveTopic(request, currentUser, categories, university);
             saveTopicAttachments(topic, uploadedFiles);
             TopicDTO.TopicResponse response = mapToDTO(topic);
 
@@ -118,10 +116,10 @@ public class TopicServiceImpl implements TopicService {
     @Override
     public PaginationDTO<TopicDTO.TopicResponse> getAllTopics(Pageable pageable) {
         return getTopicsWithFilter(TopicFilterCriteria.builder()
-                                                      .statuses(List.of(TopicStatus.ACTIVE))
-                                                      .page(pageable.getPageNumber())
-                                                      .size(pageable.getPageSize())
-                                                      .build());
+                .statuses(List.of(TopicStatus.ACTIVE))
+                .page(pageable.getPageNumber())
+                .size(pageable.getPageSize())
+                .build());
     }
 
     @Override
@@ -133,71 +131,71 @@ public class TopicServiceImpl implements TopicService {
     @Override
     public List<TopicDTO.TopicSummaryResponse> getPopularTopics(int limit) {
         TopicFilterCriteria criteria = TopicFilterCriteria.builder()
-                                                          .statuses(List.of(TopicStatus.ACTIVE))
-                                                          .sortBy("viewCount")
-                                                          .sortDirection("DESC")
-                                                          .size(limit)
-                                                          .build();
+                .statuses(List.of(TopicStatus.ACTIVE))
+                .sortBy("viewCount")
+                .sortDirection("DESC")
+                .size(limit)
+                .build();
 
         return getTopicsWithFilter(criteria).getItems()
-                                            .stream()
-                                            .map(this::mapToSummaryDTO)
-                                            .collect(Collectors.toList());
+                .stream()
+                .map(this::mapToSummaryDTO)
+                .collect(Collectors.toList());
     }
 
     @Override
     public List<TopicDTO.TopicSummaryResponse> getRecentTopics(int limit) {
         TopicFilterCriteria criteria = TopicFilterCriteria.builder()
-                                                          .statuses(List.of(TopicStatus.ACTIVE))
-                                                          .sortBy("createdAt")
-                                                          .sortDirection("DESC")
-                                                          .size(limit)
-                                                          .build();
+                .statuses(List.of(TopicStatus.ACTIVE))
+                .sortBy("createdAt")
+                .sortDirection("DESC")
+                .size(limit)
+                .build();
 
         return getTopicsWithFilter(criteria).getItems()
-                                            .stream()
-                                            .map(this::mapToSummaryDTO)
-                                            .collect(Collectors.toList());
+                .stream()
+                .map(this::mapToSummaryDTO)
+                .collect(Collectors.toList());
     }
 
     @Override
     public List<TopicDTO.TopicSummaryResponse> getTrendingTopics(int limit) {
         TopicFilterCriteria criteria = TopicFilterCriteria.builder()
-                                                          .statuses(List.of(TopicStatus.ACTIVE))
-                                                          .minLikeCount(1)
-                                                          .sortBy("likeCount")
-                                                          .sortDirection("DESC")
-                                                          .size(limit)
-                                                          .build();
+                .statuses(List.of(TopicStatus.ACTIVE))
+                .minLikeCount(1)
+                .sortBy("likeCount")
+                .sortDirection("DESC")
+                .size(limit)
+                .build();
 
         return getTopicsWithFilter(criteria).getItems()
-                                            .stream()
-                                            .map(this::mapToSummaryDTO)
-                                            .collect(Collectors.toList());
+                .stream()
+                .map(this::mapToSummaryDTO)
+                .collect(Collectors.toList());
     }
 
     // ==================== HELPER METHODS ====================
     @Override
     public TopicDTO.TopicResponse mapToDTO(Topic topic) {
         return TopicDTO.TopicResponse.builder()
-                                     .id(topic.getId())
-                                     .title(topic.getTitle())
-                                     .content(topic.getContent())
-                                     .viewCount(topic.getViewCount())
-                                     .commentCount(topic.getCommentCount())
-                                     .likeCount(topic.getLikeCount())
-                                     .dislikeCount(topic.getDislikeCount())
-                                     .status(topic.getStatus())
-                                     .isLocked(topic.getIsLocked())
-                                     .visibility(topic.getVisibility())
-                                     .createdAt(topic.getCreatedAt())
-                                     .updatedAt(topic.getUpdatedAt())
-                                     .lastActivityAt(topic.getLastActivityAt())
-                                     .author(mapToAuthorInfo(topic.getAuthor()))
-                                     .category(mapToCategoryInfo(topic.getCategory()))
-                                     .university(topic.getUniversity() != null ? mapToUniversityInfo(topic.getUniversity()) : null)
-                                     .attachments(mapToAttachmentResponses(topic.getAttachments()))
-                                     .build();
+                .id(topic.getId())
+                .title(topic.getTitle())
+                .content(topic.getContent())
+                .viewCount(topic.getViewCount())
+                .commentCount(topic.getCommentCount())
+                .likeCount(topic.getLikeCount())
+                .dislikeCount(topic.getDislikeCount())
+                .status(topic.getStatus())
+                .isLocked(topic.getIsLocked())
+                .visibility(topic.getVisibility())
+                .createdAt(topic.getCreatedAt())
+                .updatedAt(topic.getUpdatedAt())
+                .lastActivityAt(topic.getLastActivityAt())
+                .author(mapToAuthorInfo(topic.getAuthor()))
+                .categories(mapToCategoryInfoList(topic.getCategories()))
+                .university(topic.getUniversity() != null ? mapToUniversityInfo(topic.getUniversity()) : null)
+                .attachments(mapToAttachmentResponses(topic.getAttachments()))
+                .build();
     }
 
     private TopicDTO.TopicSummaryResponse mapToSummaryDTO(TopicDTO.TopicResponse topic) {
@@ -206,27 +204,27 @@ public class TopicServiceImpl implements TopicService {
                 : topic.getContent();
 
         return TopicDTO.TopicSummaryResponse.builder()
-                                            .id(topic.getId())
-                                            .title(topic.getTitle())
-                                            .contentPreview(contentPreview)
-                                            .viewCount(topic.getViewCount())
-                                            .commentCount(topic.getCommentCount())
-                                            .likeCount(topic.getLikeCount())
-                                            .dislikeCount(topic.getDislikeCount())
-                                            .status(topic.getStatus())
-                                            .visibility(topic.getVisibility())
-                                            .createdAt(topic.getCreatedAt())
-                                            .lastActivityAt(topic.getLastActivityAt())
-                                            .author(topic.getAuthor())
-                                            .category(topic.getCategory())
-                                            .university(topic.getUniversity())
-                                            .build();
+                .id(topic.getId())
+                .title(topic.getTitle())
+                .contentPreview(contentPreview)
+                .viewCount(topic.getViewCount())
+                .commentCount(topic.getCommentCount())
+                .likeCount(topic.getLikeCount())
+                .dislikeCount(topic.getDislikeCount())
+                .status(topic.getStatus())
+                .visibility(topic.getVisibility())
+                .createdAt(topic.getCreatedAt())
+                .lastActivityAt(topic.getLastActivityAt())
+                .author(topic.getAuthor())
+                .categories(topic.getCategories()) // Thay đổi
+                .university(topic.getUniversity())
+                .build();
     }
 
     @Override
     public Topic getTopicByIdOrThrow(Long id) {
         return topicRepository.findById(id)
-                              .orElseThrow(() -> new BadRequestException("Topic not found"));
+                .orElseThrow(() -> new BadRequestException("Topic not found"));
     }
 
     // ==================== MAPPING HELPERS ====================
@@ -235,32 +233,44 @@ public class TopicServiceImpl implements TopicService {
         if (author.getUniversity() != null) {
             universityResponse = universityService.mapToDTO(author.getUniversity());
         } else {
-            universityResponse = null; // Handle case where university is null
+            universityResponse = null;
         }
 
         return TopicDTO.AuthorInfo.builder()
-                                  .id(author.getId())
-                                  .fullName(author.getFullName())
-                                  .avatarUrl(author.getAvatarUrl())
-                                  .university(universityResponse)
-                                  .major(author.getMajor())
-                                  .year(author.getYear())
-                                  .build();
+                .id(author.getId())
+                .fullName(author.getFullName())
+                .avatarUrl(author.getAvatarUrl())
+                .university(universityResponse)
+                .major(author.getMajor())
+                .year(author.getYear())
+                .build();
+    }
+
+    private List<TopicDTO.CategoryInfo> mapToCategoryInfoList(Set<Category> categories) {
+        if (CollectionUtils.isEmpty(categories)) {
+            return Collections.emptyList();
+        }
+
+        return categories.stream()
+                .map(this::mapToCategoryInfo)
+                .sorted(Comparator.comparing(TopicDTO.CategoryInfo::getName)) // Sort by name
+                .collect(Collectors.toList());
     }
 
     private TopicDTO.CategoryInfo mapToCategoryInfo(Category category) {
         return TopicDTO.CategoryInfo.builder()
-                                    .id(category.getId())
-                                    .name(category.getName())
-                                    .build();
+                .id(category.getId())
+                .name(category.getName())
+                .type(category.getType().toString())
+                .build();
     }
 
     private TopicDTO.UniversityInfo mapToUniversityInfo(University university) {
         return TopicDTO.UniversityInfo.builder()
-                                      .id(university.getId())
-                                      .name(university.getName())
-                                      .shortName(university.getShortName())
-                                      .build();
+                .id(university.getId())
+                .name(university.getName())
+                .shortName(university.getShortName())
+                .build();
     }
 
     private List<TopicDTO.AttachmentResponse> mapToAttachmentResponses(List<TopicAttachment> attachments) {
@@ -269,15 +279,15 @@ public class TopicServiceImpl implements TopicService {
         }
 
         return attachments.stream()
-                          .map(attachment -> TopicDTO.AttachmentResponse.builder()
-                                                                        .id(attachment.getId())
-                                                                        .fileUrl(attachment.getFileUrl())
-                                                                        .fileName(attachment.getFileName())
-                                                                        .fileType(attachment.getFileType())
-                                                                        .fileSize(attachment.getFileSize() != null ? attachment.getFileSize().intValue() : null)
-                                                                        .createdAt(attachment.getCreatedAt())
-                                                                        .build())
-                          .collect(Collectors.toList());
+                .map(attachment -> TopicDTO.AttachmentResponse.builder()
+                        .id(attachment.getId())
+                        .fileUrl(attachment.getFileUrl())
+                        .fileName(attachment.getFileName())
+                        .fileType(attachment.getFileType())
+                        .fileSize(attachment.getFileSize() != null ? attachment.getFileSize().intValue() : null)
+                        .createdAt(attachment.getCreatedAt())
+                        .build())
+                .collect(Collectors.toList());
     }
 
     // ==================== CREATE TOPIC HELPER METHODS ====================
@@ -289,11 +299,23 @@ public class TopicServiceImpl implements TopicService {
         return userService.getUserByIdOrThrow(userId);
     }
 
-    private Category getCategoryForTopic(Long categoryId) {
-        if (categoryId == null) {
-            throw new BadRequestException("Category ID is required");
+    // Thay đổi: Handle multiple categories thay vì single category
+    private Set<Category> getCategoriesForTopic(Set<Long> categoryIds) {
+        if (CollectionUtils.isEmpty(categoryIds)) {
+            throw new BadRequestException("At least one category is required");
         }
-        return categoryService.getCategoryByIdOrThrow(categoryId);
+
+        Set<Category> categories = new HashSet<>();
+        for (Long categoryId : categoryIds) {
+            Category category = categoryService.getCategoryByIdOrThrow(categoryId);
+            categories.add(category);
+        }
+
+        if (categories.size() != categoryIds.size()) {
+            throw new BadRequestException("One or more categories not found");
+        }
+
+        return categories;
     }
 
     private University getUniversityForTopic(TopicDTO.CreateTopicWithFilesRequest request) {
@@ -323,14 +345,14 @@ public class TopicServiceImpl implements TopicService {
             if (!isValidFileType(file)) {
                 throw new BadRequestException(
                         String.format("File type '%s' is not supported for file '%s'",
-                                      file.getContentType(), file.getOriginalFilename())
+                                file.getContentType(), file.getOriginalFilename())
                 );
             }
 
             if (file.getSize() > MAX_FILE_SIZE_MB * 1024L * 1024L) {
                 throw new BadRequestException(
                         String.format("File '%s' exceeds maximum size of %dMB",
-                                      file.getOriginalFilename(), MAX_FILE_SIZE_MB)
+                                file.getOriginalFilename(), MAX_FILE_SIZE_MB)
                 );
             }
         }
@@ -339,8 +361,8 @@ public class TopicServiceImpl implements TopicService {
     private boolean isValidFileType(MultipartFile file) {
         String contentType = file.getContentType();
         return contentType != null &&
-               Arrays.stream(ALLOWED_FILE_TYPES)
-                     .anyMatch(type -> type.equalsIgnoreCase(contentType));
+                Arrays.stream(ALLOWED_FILE_TYPES)
+                        .anyMatch(type -> type.equalsIgnoreCase(contentType));
     }
 
     private List<FileUploadDTO.FileUploadResponse> uploadTopicAttachments(List<MultipartFile> attachments) {
@@ -349,8 +371,8 @@ public class TopicServiceImpl implements TopicService {
         }
 
         List<MultipartFile> validFiles = attachments.stream()
-                                                    .filter(file -> !file.isEmpty())
-                                                    .collect(Collectors.toList());
+                .filter(file -> !file.isEmpty())
+                .collect(Collectors.toList());
 
         if (validFiles.isEmpty()) {
             return Collections.emptyList();
@@ -368,22 +390,23 @@ public class TopicServiceImpl implements TopicService {
         }
     }
 
+    // Thay đổi: Set categories cho topic
     private Topic createAndSaveTopic(TopicDTO.CreateTopicWithFilesRequest request,
-                                     User author, Category category, University university) {
+                                     User author, Set<Category> categories, University university) {
         Topic topic = Topic.builder()
-                           .title(request.getTitle().trim())
-                           .content(request.getContent().trim())
-                           .category(category)
-                           .visibility(request.getVisibility())
-                           .university(university)
-                           .status(TopicStatus.ACTIVE)
-                           .viewCount(0)
-                           .commentCount(0)
-                           .likeCount(0)
-                           .dislikeCount(0)
-                           .isLocked(false)
-                           .author(author)
-                           .build();
+                .title(request.getTitle().trim())
+                .content(request.getContent().trim())
+                .categories(categories) // Set multiple categories
+                .visibility(request.getVisibility())
+                .university(university)
+                .status(TopicStatus.ACTIVE)
+                .viewCount(0)
+                .commentCount(0)
+                .likeCount(0)
+                .dislikeCount(0)
+                .isLocked(false)
+                .author(author)
+                .build();
 
         return topicRepository.save(topic);
     }
@@ -394,14 +417,14 @@ public class TopicServiceImpl implements TopicService {
         }
 
         List<TopicAttachment> attachments = uploadedFiles.stream()
-                                                         .map(file -> TopicAttachment.builder()
-                                                                                     .topic(topic)
-                                                                                     .fileUrl(file.getFileUrl())
-                                                                                     .fileName(file.getOriginalFilename())
-                                                                                     .fileType(file.getContentType())
-                                                                                     .fileSize(file.getFileSize())
-                                                                                     .build())
-                                                         .collect(Collectors.toList());
+                .map(file -> TopicAttachment.builder()
+                        .topic(topic)
+                        .fileUrl(file.getFileUrl())
+                        .fileName(file.getOriginalFilename())
+                        .fileType(file.getContentType())
+                        .fileSize(file.getFileSize())
+                        .build())
+                .collect(Collectors.toList());
 
         topicAttachmentRepository.saveAll(attachments);
 

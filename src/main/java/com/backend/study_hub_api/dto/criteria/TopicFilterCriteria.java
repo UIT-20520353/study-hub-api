@@ -22,8 +22,10 @@ public class TopicFilterCriteria extends BaseFilterCriteria {
 
     private Long authorId;
     private String authorName;
-    private Long categoryId;
+
+    private List<Long> categoryIds;
     private String categoryName;
+
     private Long universityId;
     private String universityName;
 
@@ -43,6 +45,9 @@ public class TopicFilterCriteria extends BaseFilterCriteria {
     private String lastActivityFrom;
     private String lastActivityTo;
 
+    // Thêm: Các filter options cho categories
+    private Boolean requireAllCategories = false; // false = OR logic, true = AND logic
+
     @Override
     public String getSortBy() {
         String sortBy = super.getSortBy();
@@ -53,5 +58,14 @@ public class TopicFilterCriteria extends BaseFilterCriteria {
     public String getSortDirection() {
         String sortDirection = super.getSortDirection();
         return sortDirection != null ? sortDirection : "DESC";
+    }
+
+    // Helper methods
+    public boolean hasCategoryFilter() {
+        return categoryIds != null && !categoryIds.isEmpty();
+    }
+
+    public boolean hasMultipleCategories() {
+        return hasCategoryFilter() && categoryIds.size() > 1;
     }
 }

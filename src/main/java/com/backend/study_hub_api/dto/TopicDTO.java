@@ -4,6 +4,7 @@ import com.backend.study_hub_api.helper.enumeration.TopicStatus;
 import com.backend.study_hub_api.helper.enumeration.TopicVisibility;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.*;
@@ -11,6 +12,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Set;
 
 public class TopicDTO {
 
@@ -28,7 +30,9 @@ public class TopicDTO {
         @NotBlank(message = "Content is required")
         private String content;
 
-        private Long categoryId;
+        // Thay đổi: từ single categoryId sang multiple categoryIds
+        @NotEmpty(message = "At least one category is required")
+        private Set<Long> categoryIds;
 
         @NotNull(message = "Visibility is required")
         private TopicVisibility visibility;
@@ -50,7 +54,9 @@ public class TopicDTO {
         @NotBlank(message = "Content is required")
         private String content;
 
-        private Long categoryId;
+        // Thay đổi: từ single categoryId sang multiple categoryIds
+        @NotEmpty(message = "At least one category is required")
+        private Set<Long> categoryIds;
 
         @NotNull(message = "Visibility is required")
         private TopicVisibility visibility;
@@ -74,7 +80,8 @@ public class TopicDTO {
         @NotBlank(message = "Content is required")
         private String content;
 
-        private Long categoryId;
+        // Thay đổi: từ single categoryId sang multiple categoryIds
+        private Set<Long> categoryIds;
 
         private TopicVisibility visibility;
 
@@ -135,8 +142,8 @@ public class TopicDTO {
         // Author information
         private AuthorInfo author;
 
-        // Category information
-        private CategoryInfo category;
+        // Categories information - Thay đổi: từ single category sang multiple categories
+        private List<CategoryInfo> categories;
 
         // University information
         private UniversityInfo university;
@@ -172,7 +179,10 @@ public class TopicDTO {
         private Instant lastActivityAt;
 
         private AuthorInfo author;
-        private CategoryInfo category;
+
+        // Thay đổi: từ single category sang multiple categories
+        private List<CategoryInfo> categories;
+
         private UniversityInfo university;
     }
 
@@ -198,6 +208,7 @@ public class TopicDTO {
     public static class CategoryInfo {
         private Long id;
         private String name;
+        private String type; // Thêm type để hiển thị loại category
     }
 
     @Getter
