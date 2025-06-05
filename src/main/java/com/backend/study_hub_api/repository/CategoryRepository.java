@@ -1,5 +1,6 @@
 package com.backend.study_hub_api.repository;
 
+import com.backend.study_hub_api.helper.enumeration.CategoryType;
 import com.backend.study_hub_api.model.Category;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
@@ -22,4 +23,6 @@ public interface CategoryRepository extends JpaRepository<Category, Long>, JpaSp
     List<Category> findAllSortedByName();
 
     Optional<Category> findByNameIgnoreCase(String name);
+
+    List<Category> findByTypeAndIsActive(CategoryType type, boolean isActive);
 }

@@ -41,6 +41,8 @@ public class TopicFilterCriteria extends BaseFilterCriteria {
     private Integer maxCommentCount;
     private Integer minLikeCount;
     private Integer maxLikeCount;
+    private Integer minDislikeCount;
+    private Integer maxDislikeCount;
 
     private String lastActivityFrom;
     private String lastActivityTo;
@@ -50,14 +52,10 @@ public class TopicFilterCriteria extends BaseFilterCriteria {
 
     @Override
     public String getSortBy() {
-        String sortBy = super.getSortBy();
-        return sortBy != null ? sortBy : "lastActivityAt";
-    }
-
-    @Override
-    public String getSortDirection() {
-        String sortDirection = super.getSortDirection();
-        return sortDirection != null ? sortDirection : "DESC";
+        if (super.getSortBy() == null || "id".equals(super.getSortBy())) {
+            return "lastActivityAt";
+        }
+        return super.getSortBy();
     }
 
     // Helper methods

@@ -12,6 +12,7 @@ import com.backend.study_hub_api.helper.exception.BadRequestException;
 import com.backend.study_hub_api.helper.util.PaginationUtils;
 import com.backend.study_hub_api.model.*;
 import com.backend.study_hub_api.repository.TopicAttachmentRepository;
+import com.backend.study_hub_api.repository.TopicReactionRepository;
 import com.backend.study_hub_api.repository.TopicRepository;
 import com.backend.study_hub_api.service.*;
 import com.backend.study_hub_api.specification.TopicSpecification;
@@ -59,16 +60,15 @@ public class TopicServiceImpl implements TopicService {
     };
 
     private static final int MAX_FILE_SIZE_MB = 10;
-    private static final int MAX_FILES_COUNT = 10;
+    private static final int MAX_FILES_COUNT = 5;
+    private final TopicReactionRepository topicReactionRepository;
 
     // ==================== CREATE TOPIC ====================
     @Override
     @Transactional
     public TopicDTO.TopicResponse createTopic(TopicDTO.CreateTopicWithFilesRequest request) {
-        log.info("Creating new topic with title: {}", request.getTitle());
-
         User currentUser = getCurrentAuthenticatedUser();
-        Set<Category> categories = getCategoriesForTopic(request.getCategoryIds());
+        List<Category> categories = getCategoriesForTopic(request.getCategoryIds());
         University university = getUniversityForTopic(request);
 
         validateFileAttachments(request.getAttachments());
@@ -78,13 +78,10 @@ public class TopicServiceImpl implements TopicService {
         try {
             Topic topic = createAndSaveTopic(request, currentUser, categories, university);
             saveTopicAttachments(topic, uploadedFiles);
-            TopicDTO.TopicResponse response = mapToDTO(topic);
 
-            log.info("Successfully created topic with ID: {}", topic.getId());
-            return response;
+            return mapToDTO(topic);
 
         } catch (Exception e) {
-            log.error("Error creating topic, cleaning up uploaded files", e);
             cleanupUploadedFiles(uploadedFiles);
             throw e;
         }
@@ -104,11 +101,29 @@ public class TopicServiceImpl implements TopicService {
                 Sort.by(direction, criteria.getSortBy())
         );
 
-        // Execute query
         Page<Topic> topicPage = topicRepository.findAll(specification, pageable);
 
-        // Map to DTOs
-        Page<TopicDTO.TopicResponse> responsePage = topicPage.map(this::mapToDTO);
+        User user = getCurrentAuthenticatedUser();
+        Map<Long, TopicReaction> userReactionsMap = new HashMap<>();
+
+        if (!topicPage.getContent().isEmpty()) {
+            List<Long> topicIds = topicPage.getContent().stream()
+                                           .map(Topic::getId)
+                                           .collect(Collectors.toList());
+
+            List<TopicReaction> userReactions = topicReactionRepository.findByTopicIdInAndUserId(topicIds, user.getId());
+
+            userReactionsMap = userReactions.stream()
+                                            .collect(Collectors.toMap(
+                                                    reaction -> reaction.getTopic().getId(),
+                                                    reaction -> reaction
+                                            ));
+        }
+        final Map<Long, TopicReaction> finalUserReactionsMap = userReactionsMap;
+        Page<TopicDTO.TopicResponse> responsePage = topicPage.map(topic -> {
+            TopicReaction userReaction = finalUserReactionsMap.get(topic.getId());
+            return userReaction != null ? mapToDTO(topic, userReaction) : mapToDTO(topic);
+        });
 
         return PaginationUtils.createPaginationResponse(responsePage);
     }
@@ -123,9 +138,15 @@ public class TopicServiceImpl implements TopicService {
     }
 
     @Override
+    @Transactional
     public TopicDTO.TopicResponse getTopicById(Long id) {
         Topic topic = getTopicByIdOrThrow(id);
-        return mapToDTO(topic);
+        User currentUser = getCurrentAuthenticatedUser();
+        topic.setViewCount(topic.getViewCount() + 1);
+        topicRepository.save(topic);
+        TopicReaction userReaction = topicReactionRepository.findByTopicIdAndUserId(topic.getId(), currentUser.getId())
+                                                            .orElse(null);
+        return mapToDTO(topic, userReaction);
     }
 
     @Override
@@ -195,7 +216,29 @@ public class TopicServiceImpl implements TopicService {
                 .categories(mapToCategoryInfoList(topic.getCategories()))
                 .university(topic.getUniversity() != null ? mapToUniversityInfo(topic.getUniversity()) : null)
                 .attachments(mapToAttachmentResponses(topic.getAttachments()))
+                 .userInteraction(null)
                 .build();
+    }
+
+    @Override
+    public TopicDTO.TopicResponse mapToDTO(Topic topic, TopicReaction userReaction) {
+        TopicDTO.TopicResponse response = mapToDTO(topic);
+        if (userReaction != null) {
+            response.setUserInteraction(TopicDTO.UserInteractionInfo.builder()
+                    .isFollowing(false)
+                    .userReaction(userReaction.getReactionType().getValue())
+                    .isAuthor(userReaction.getUser().getId().equals(topic.getAuthor().getId()))
+                    .build());
+        }
+        return response;
+    }
+
+    @Override
+    @Transactional
+    public void deleteTopic(Long id) {
+        Topic topic = getTopicByIdOrThrow(id);
+        topic.setStatus(TopicStatus.DELETED);
+        topicRepository.save(topic);
     }
 
     private TopicDTO.TopicSummaryResponse mapToSummaryDTO(TopicDTO.TopicResponse topic) {
@@ -246,7 +289,7 @@ public class TopicServiceImpl implements TopicService {
                 .build();
     }
 
-    private List<TopicDTO.CategoryInfo> mapToCategoryInfoList(Set<Category> categories) {
+    private List<TopicDTO.CategoryInfo> mapToCategoryInfoList(List<Category> categories) {
         if (CollectionUtils.isEmpty(categories)) {
             return Collections.emptyList();
         }
@@ -299,13 +342,12 @@ public class TopicServiceImpl implements TopicService {
         return userService.getUserByIdOrThrow(userId);
     }
 
-    // Thay đổi: Handle multiple categories thay vì single category
-    private Set<Category> getCategoriesForTopic(Set<Long> categoryIds) {
+    private List<Category> getCategoriesForTopic(List<Long> categoryIds) {
         if (CollectionUtils.isEmpty(categoryIds)) {
             throw new BadRequestException("At least one category is required");
         }
 
-        Set<Category> categories = new HashSet<>();
+        List<Category> categories = new ArrayList<>();
         for (Long categoryId : categoryIds) {
             Category category = categoryService.getCategoryByIdOrThrow(categoryId);
             categories.add(category);
@@ -390,13 +432,12 @@ public class TopicServiceImpl implements TopicService {
         }
     }
 
-    // Thay đổi: Set categories cho topic
     private Topic createAndSaveTopic(TopicDTO.CreateTopicWithFilesRequest request,
-                                     User author, Set<Category> categories, University university) {
+                                     User author, List<Category> categories, University university) {
         Topic topic = Topic.builder()
                 .title(request.getTitle().trim())
                 .content(request.getContent().trim())
-                .categories(categories) // Set multiple categories
+                .categories(categories)
                 .visibility(request.getVisibility())
                 .university(university)
                 .status(TopicStatus.ACTIVE)

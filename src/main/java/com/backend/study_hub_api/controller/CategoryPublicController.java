@@ -10,6 +10,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/common/categories")
 @RequiredArgsConstructor
@@ -30,5 +32,12 @@ public class CategoryPublicController {
     @Operation(summary = "Get category by ID", description = "Retrieve a specific category by ID")
     public ResponseEntity<CategoryDTO.CategoryResponse> getCategoryById(@PathVariable Long id) {
         return ResponseEntity.ok(categoryService.getCategoryById(id));
+    }
+
+    @GetMapping("/topic")
+    @Operation(summary = "Get categories for topic creation",
+               description = "Retrieve categories suitable for creating a new topic")
+    public ResponseEntity<List<CategoryDTO.CategoryResponse>> getCategoriesForTopicCreation() {
+        return ResponseEntity.ok(categoryService.getCategoriesForTopicCreation());
     }
 }

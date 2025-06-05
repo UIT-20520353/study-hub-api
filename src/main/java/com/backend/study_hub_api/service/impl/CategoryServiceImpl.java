@@ -3,6 +3,7 @@ package com.backend.study_hub_api.service.impl;
 import com.backend.study_hub_api.dto.CategoryDTO;
 import com.backend.study_hub_api.dto.common.PaginationDTO;
 import com.backend.study_hub_api.dto.criteria.CategoryFilterCriteria;
+import com.backend.study_hub_api.helper.enumeration.CategoryType;
 import com.backend.study_hub_api.helper.exception.BadRequestException;
 import com.backend.study_hub_api.helper.util.PaginationUtils;
 import com.backend.study_hub_api.model.Category;
@@ -141,6 +142,14 @@ public class CategoryServiceImpl extends BaseFilterService<Category, Long, Categ
     public Category getCategoryByIdOrThrow(Long id) {
         return categoryRepository.findById(id)
                                  .orElseThrow(() -> new BadRequestException(CATEGORY_NOT_FOUND));
+    }
+
+    @Override
+    public List<CategoryDTO.CategoryResponse> getCategoriesForTopicCreation() {
+        return categoryRepository.findByTypeAndIsActive(CategoryType.TOPIC, true)
+                                 .stream()
+                                 .map(this::mapToDTO)
+                                 .toList();
     }
 
 }

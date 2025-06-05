@@ -4,6 +4,7 @@ import com.backend.study_hub_api.dto.TopicDTO;
 import com.backend.study_hub_api.dto.common.PaginationDTO;
 import com.backend.study_hub_api.dto.criteria.TopicFilterCriteria;
 import com.backend.study_hub_api.model.Topic;
+import com.backend.study_hub_api.model.TopicReaction;
 import org.springframework.data.domain.Pageable;
 
 import java.util.List;
@@ -30,4 +31,8 @@ public interface TopicService {
 
     Topic getTopicByIdOrThrow(Long id);
     TopicDTO.TopicResponse mapToDTO(Topic topic);
+    TopicDTO.TopicResponse mapToDTO(Topic topic, TopicReaction userReaction);
+
+    // ==================== UPDATE OPERATIONS ====================
+    void deleteTopic(Long id);
 }

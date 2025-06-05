@@ -1,10 +1,13 @@
 package com.backend.study_hub_api.controller;
 
 import com.backend.study_hub_api.dto.TopicDTO;
+import com.backend.study_hub_api.dto.TopicReactionDTO;
 import com.backend.study_hub_api.dto.common.PaginationDTO;
 import com.backend.study_hub_api.dto.criteria.TopicFilterCriteria;
+import com.backend.study_hub_api.helper.enumeration.ReactionType;
 import com.backend.study_hub_api.helper.enumeration.TopicStatus;
 import com.backend.study_hub_api.helper.enumeration.TopicVisibility;
+import com.backend.study_hub_api.service.TopicReactionService;
 import com.backend.study_hub_api.service.TopicService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -15,12 +18,12 @@ import lombok.experimental.FieldDefaults;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
-import java.util.Set;
 
 @RestController
 @RequestMapping("/api/user/topics")
@@ -30,13 +33,13 @@ import java.util.Set;
 public class TopicController {
 
     TopicService topicService;
+    TopicReactionService topicReactionService;
 
-    @PostMapping
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<TopicDTO.TopicResponse> createTopic(
             @RequestParam("title") String title,
             @RequestParam("content") String content,
-            // Thay đổi: Handle multiple category IDs thay vì single categoryId
-            @RequestParam(value = "categoryIds") Set<Long> categoryIds,
+            @RequestParam(value = "categoryIds") List<Long> categoryIds,
             @RequestParam("visibility") TopicVisibility visibility,
             @RequestParam(value = "universityId", required = false) Long universityId,
             @RequestParam(value = "attachments", required = false) List<MultipartFile> attachments
@@ -51,6 +54,15 @@ public class TopicController {
                 .build();
 
         return ResponseEntity.ok(topicService.createTopic(request));
+    }
+
+    @DeleteMapping("/{id}")
+    @Operation(summary = "Delete topic by ID", description = "Delete a specific topic by its ID")
+    public ResponseEntity<Void> deleteTopic(
+            @Parameter(description = "Topic ID", required = true)
+            @PathVariable Long id) {
+        topicService.deleteTopic(id);
+        return ResponseEntity.noContent().build();
     }
 
     // ==================== GET TOPICS WITH ADVANCED FILTERS ====================
@@ -72,7 +84,6 @@ public class TopicController {
             @Parameter(description = "Filter by author name")
             @RequestParam(required = false) String authorName,
 
-            // Thay đổi: Support multiple category filters
             @Parameter(description = "Filter by category IDs")
             @RequestParam(required = false) List<Long> categoryIds,
 
@@ -338,6 +349,20 @@ public class TopicController {
 
         PaginationDTO<TopicDTO.TopicResponse> response = topicService.getTopicsWithFilter(criteria);
         return ResponseEntity.ok(response);
+    }
+
+    // ==================== REACTION ACTIONS ====================
+
+    @PostMapping("/{topicId}/react")
+    @Operation(summary = "Add or toggle reaction", description = "Like or dislike a topic. If same reaction exists, it will be removed (toggle)")
+    public ResponseEntity<TopicDTO.TopicResponse> toggleReaction(
+            @Parameter(description = "Topic ID")
+            @PathVariable Long topicId,
+
+            @Parameter(description = "Reaction type", required = true)
+            @RequestParam ReactionType reactionType) {
+
+        return ResponseEntity.ok(topicReactionService.toggleReaction(topicId, reactionType));
     }
 
 }

@@ -32,7 +32,7 @@ public class TopicDTO {
 
         // Thay đổi: từ single categoryId sang multiple categoryIds
         @NotEmpty(message = "At least one category is required")
-        private Set<Long> categoryIds;
+        private List<Long> categoryIds;
 
         @NotNull(message = "Visibility is required")
         private TopicVisibility visibility;
@@ -48,15 +48,14 @@ public class TopicDTO {
     public static class CreateTopicWithFilesRequest {
 
         @NotBlank(message = "Title is required")
-        @Size(max = 255, message = "Title must not exceed 255 characters")
+        @Size(max = 100, message = "Title must not exceed 100 characters")
         private String title;
 
         @NotBlank(message = "Content is required")
         private String content;
 
-        // Thay đổi: từ single categoryId sang multiple categoryIds
         @NotEmpty(message = "At least one category is required")
-        private Set<Long> categoryIds;
+        private List<Long> categoryIds;
 
         @NotNull(message = "Visibility is required")
         private TopicVisibility visibility;
