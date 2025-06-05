@@ -94,6 +94,16 @@ public class User {
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
     private List<TopicFollower> followedTopics;
 
+    @JsonIgnore
+    @ToString.Exclude
+    @OneToMany(mappedBy = "recipient", fetch = FetchType.LAZY)
+    private List<Notification> receivedNotifications;
+
+    @JsonIgnore
+    @ToString.Exclude
+    @OneToMany(mappedBy = "sender", fetch = FetchType.LAZY)
+    private List<Notification> sentNotifications;
+
     public void setNewSession(UserSession session) {
         session.setUser(this);
         this.sessions.clear();
