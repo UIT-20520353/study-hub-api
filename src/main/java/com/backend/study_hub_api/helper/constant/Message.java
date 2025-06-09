@@ -47,6 +47,11 @@ public class Message {
     public static final String LAST_NAME_REQUIRED_ERROR = "error.validate.last-name.required";
     public static final String DATE_OF_BIRTH_REQUIRED_ERROR = "error.validate.date-of-birth.required";
     public static final String GENDER_REQUIRED_ERROR = "error.validate.gender.required";
+    public static final String CURRENT_PASSWORD_REQUIRED_ERROR = "error.validate.current-password.required";
+    public static final String CURRENT_PASSWORD_INCORRECT_ERROR = "error.validate.current-password.incorrect";
+    public static final String NEW_PASSWORD_REQUIRED_ERROR = "error.validate.new-password.required";
+    public static final String NEW_PASSWORD_SIZE_ERROR = "error.validate.new-password.size";
+    public static final String NEW_PASSWORD_MUST_DIFFER_ERROR = "error.validate.new-password.must-differ";
 
     // File Upload Errors
     public static final String IMAGE_REQUIRED_ERROR = "error.validate.image.required";
@@ -103,9 +108,16 @@ public class Message {
     public static final String PRODUCT_DESCRIPTION_MAX_LENGTH_ERROR = "error.validate.product.description.max-length";
     public static final String PRODUCT_PRICE_REQUIRED_ERROR = "error.validate.product.price.required";
     public static final String PRODUCT_PRICE_MIN_ERROR = "error.validate.product.price.min";
+    public static final String PRODUCT_PRICE_MAX_ERROR = "error.validate.product.price.max";
     public static final String PRODUCT_CONDITION_REQUIRED_ERROR = "error.validate.product.condition.required";
     public static final String PRODUCT_CATEGORY_REQUIRED_ERROR = "error.validate.product.category.required";
     public static final String PRODUCT_DELIVERY_METHOD_REQUIRED_ERROR = "error.validate.product.delivery-method.required";
+    public static final String PRODUCT_IMAGE_REQUIRED_ERROR = "error.validate.product.image.required";
+    public static final String PRODUCT_IMAGE_MAX_COUNT_ERROR = "error.validate.product.image.max-count";
+    public static final String PRODUCT_IMAGE_TYPE_NOT_SUPPORTED_ERROR = "error.validate.product.image.type.not-supported";
+    public static final String PRODUCT_IMAGE_MAX_SIZE_ERROR = "error.validate.product.image.max-size";
+    public static final String AVATAR_FILE_EMPTY_ERROR = "error.validate.avatar.file.empty";
+    public static final String AVATAR_UPLOAD_ERROR = "error.validate.avatar.upload.error";
 
     // Faculty Related Errors
     public static final String FACULTY_NOT_FOUND_ERROR = "error.faculty.not-found";
@@ -118,6 +130,7 @@ public class Message {
     public static final String COMMENT_NOT_AUTHORIZED_ERROR = "error.comment.not-authorized";
     public static final String COMMENT_CONTENT_REQUIRED_ERROR = "error.validate.comment.content.required";
     public static final String COMMENT_CONTENT_MAX_LENGTH_ERROR = "error.validate.comment.content.max-length";
+    public static final String ONLY_COMMENT_AUTHOR_CAN_DELETE = "error.comment.only-author-can-delete";
 
     // Message/Chat Related Errors
     public static final String MESSAGE_NOT_FOUND_ERROR = "error.message.not-found";
@@ -173,5 +186,48 @@ public class Message {
     public static final String VERIFICATION_CODE_SENT_FAILED_ERROR = "error.verification.code.send-failed";
     public static final String CODE_REQUIRED_ERROR = "error.validate.code.required";
     public static final String USER_ID_REQUIRED_ERROR = "error.validate.user-id.required";
+
+    // Order Related Errors
+    public static final String ORDER_NOT_FOUND_ERROR = "error.order.not-found";
+    public static final String ORDER_NOT_AUTHORIZED_ERROR = "error.order.not-authorized";
+    public static final String ORDER_INVALID_STATUS_ERROR = "error.order.invalid-status";
+    public static final String ORDER_ALREADY_CANCELLED_ERROR = "error.order.already-cancelled";
+    public static final String ORDER_ALREADY_COMPLETED_ERROR = "error.order.already-completed";
+    public static final String ORDER_CANNOT_CANCEL_ERROR = "error.order.cannot-cancel";
+    public static final String ORDER_CANNOT_CONFIRM_ERROR = "error.order.cannot-confirm";
+    public static final String ORDER_DELIVERY_ADDRESS_REQUIRED_ERROR = "error.validate.order.delivery-address.required";
+    public static final String ORDER_DELIVERY_ADDRESS_MAX_LENGTH_ERROR = "error.validate.order.delivery-address.max-length";
+    public static final String ORDER_DELIVERY_PHONE_REQUIRED_ERROR = "error.validate.order.delivery-phone.required";
+    public static final String ORDER_DELIVERY_PHONE_FORMAT_ERROR = "error.validate.order.delivery-phone.format";
+    public static final String ORDER_DELIVERY_METHOD_REQUIRED_ERROR = "error.validate.order.delivery-method.required";
+    public static final String ORDER_SHIPPING_FEE_MIN_ERROR = "error.validate.order.shipping-fee.min";
+    public static final String ORDER_SHIPPING_FEE_MAX_ERROR = "error.validate.order.shipping-fee.max";
+    public static final String ORDER_CANCELLATION_REASON_REQUIRED_ERROR = "error.validate.order.cancellation-reason.required";
+    public static final String ORDER_CANCELLATION_REASON_MAX_LENGTH_ERROR = "error.validate.order.cancellation-reason.max-length";
+    public static final String ORDER_DELIVERY_NOTES_MAX_LENGTH_ERROR = "error.validate.order.delivery-notes.max-length";
+    public static final String ORDER_CODE_ALREADY_EXISTS_ERROR = "error.order.code.already-exists";
+    public static final String ORDER_PRODUCT_NOT_AVAILABLE_ERROR = "error.order.product.not-available";
+    public static final String ORDER_CANNOT_ORDER_OWN_PRODUCT_ERROR = "error.order.cannot-order-own-product";
+    public static final String ORDER_ITEMS_EMPTY_ERROR = "error.validate.order.items.empty";
+    public static final String ORDER_PRODUCTS_SAME_SELLER_ERROR = "error.validate.order.products.same-seller";
+    public static final String ORDER_PRODUCT_ID_REQUIRED_ERROR = "error.validate.order.product.id.required";
+    public static final String ORDER_BUYER_SELLER_SAME_ERROR = "error.validate.order.buyer-seller.same";
+    public static final String ORDER_ONLY_PENDING_CONFIRMED_CAN_CANCEL_ERROR = "error.order.only-pending-confirmed-can-cancel";
+
+    // Order Status and Permission Errors
+    public static final String ORDER_ONLY_SELLER_CAN_CONFIRM_ERROR = "error.order.only-seller-can-confirm";
+    public static final String ORDER_ONLY_PENDING_CAN_CONFIRM_ERROR = "error.order.only-pending-can-confirm";
+    public static final String ORDER_ONLY_SELLER_CAN_UPDATE_SHIPPING_FEE_ERROR = "error.order.only-seller-can-update-shipping-fee";
+    public static final String ORDER_ONLY_CONFIRMED_CAN_UPDATE_SHIPPING_FEE_ERROR = "error.order.only-confirmed-can-update-shipping-fee";
+    public static final String ORDER_ONLY_SELLER_CAN_MARK_SHIPPING_ERROR = "error.order.only-seller-can-mark-shipping";
+    public static final String ORDER_MUST_BE_CONFIRMED_BEFORE_SHIPPING_ERROR = "error.order.must-be-confirmed-before-shipping";
+    public static final String ORDER_ONLY_SELLER_CAN_MARK_DELIVERED_ERROR = "error.order.only-seller-can-mark-delivered";
+    public static final String ORDER_MUST_BE_SHIPPING_TO_MARK_DELIVERED_ERROR = "error.order.must-be-shipping-to-mark-delivered";
+    public static final String ORDER_ONLY_BUYER_CAN_COMPLETE_ERROR = "error.order.only-buyer-can-complete";
+    public static final String ORDER_MUST_BE_DELIVERED_TO_COMPLETE_ERROR = "error.order.must-be-delivered-to-complete";
+    public static final String ORDER_ONLY_BUYER_SELLER_CAN_CANCEL_ERROR = "error.order.only-buyer-seller-can-cancel";
+    public static final String ORDER_CANNOT_CANCEL_COMPLETED_ERROR = "error.order.cannot-cancel-completed";
+    public static final String ORDER_SHIPPING_FEE_REQUIRED_ERROR = "error.validate.order.shipping-fee.required";
+    public static final String TOPIC_ID_REQUIRED_ERROR = "error.validate.topic.id.required";
 
 }

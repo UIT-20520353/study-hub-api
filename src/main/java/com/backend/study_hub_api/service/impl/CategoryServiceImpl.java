@@ -152,4 +152,12 @@ public class CategoryServiceImpl extends BaseFilterService<Category, Long, Categ
                                  .toList();
     }
 
+    @Override
+    public List<CategoryDTO.CategoryResponse> getCategoriesForProductCreation() {
+        return categoryRepository.findByTypeAndIsActive(CategoryType.PRODUCT, true)
+                                 .stream()
+                                 .map(this::mapToDTO)
+                                 .toList();
+    }
+
 }

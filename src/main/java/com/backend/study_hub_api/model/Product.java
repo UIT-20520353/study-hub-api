@@ -4,6 +4,7 @@ import com.backend.study_hub_api.helper.enumeration.DeliveryMethod;
 import com.backend.study_hub_api.helper.enumeration.ProductCondition;
 import com.backend.study_hub_api.helper.enumeration.ProductStatus;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -17,6 +18,7 @@ import java.util.List;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class Product {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -39,6 +41,9 @@ public class Product {
 
     @Column(name = "price", nullable = false)
     private Integer price;
+
+    @Column(name = "view_count", nullable = false)
+    private Integer viewCount = 0;
 
     @Column(name = "condition", nullable = false)
     @Enumerated(EnumType.STRING)
@@ -66,7 +71,6 @@ public class Product {
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
     private List<ProductImage> images;
 
-    // Helper methods
     public String getPrimaryImageUrl() {
         if (images != null && !images.isEmpty()) {
             return images.stream()

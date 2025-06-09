@@ -18,6 +18,7 @@ import org.springframework.web.filter.CorsFilter;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.zalando.problem.jackson.ProblemModule;
 import org.zalando.problem.violations.ConstraintViolationProblemModule;
+import com.fasterxml.jackson.datatype.hibernate6.Hibernate6Module;
 
 @Configuration
 @EnableAsync
@@ -31,10 +32,16 @@ public class WebConfig implements WebMvcConfigurer {
     @Bean
     public ObjectMapper objectMapper() {
         ObjectMapper mapper = new ObjectMapper();
+
+        Hibernate6Module hibernateModule = new Hibernate6Module();
+        hibernateModule.disable(Hibernate6Module.Feature.USE_TRANSIENT_ANNOTATION);
+        hibernateModule.enable(Hibernate6Module.Feature.FORCE_LAZY_LOADING);
+
         mapper.registerModules(
                 new JavaTimeModule(),
                 new ProblemModule(),
-                new ConstraintViolationProblemModule()
+                new ConstraintViolationProblemModule(),
+                hibernateModule
         );
         mapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
         return mapper;

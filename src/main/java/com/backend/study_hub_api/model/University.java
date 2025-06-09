@@ -2,6 +2,7 @@ package com.backend.study_hub_api.model;
 
 import com.backend.study_hub_api.helper.enumeration.UniversityStatus;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -15,6 +16,7 @@ import java.util.List;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class University {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

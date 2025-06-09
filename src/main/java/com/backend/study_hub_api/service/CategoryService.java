@@ -20,5 +20,6 @@ public interface CategoryService {
     PaginationDTO<CategoryDTO.CategoryResponse> getCategoriesWithFilter(CategoryFilterCriteria criteria);
     Category getCategoryByIdOrThrow(Long id);
     List<CategoryDTO.CategoryResponse> getCategoriesForTopicCreation();
+    List<CategoryDTO.CategoryResponse> getCategoriesForProductCreation();
 
 }

@@ -40,4 +40,11 @@ public class CategoryPublicController {
     public ResponseEntity<List<CategoryDTO.CategoryResponse>> getCategoriesForTopicCreation() {
         return ResponseEntity.ok(categoryService.getCategoriesForTopicCreation());
     }
+
+    @GetMapping("/product")
+    @Operation(summary = "Get categories for product creation",
+               description = "Retrieve categories suitable for creating a new product")
+    public ResponseEntity<List<CategoryDTO.CategoryResponse>> getCategoriesForProductCreation() {
+        return ResponseEntity.ok(categoryService.getCategoriesForProductCreation());
+    }
 }

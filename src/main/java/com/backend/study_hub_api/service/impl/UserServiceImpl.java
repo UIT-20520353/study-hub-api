@@ -1,14 +1,17 @@
 package com.backend.study_hub_api.service.impl;
 
+import com.backend.study_hub_api.config.jwt.SecurityUtils;
 import com.backend.study_hub_api.dto.AuthDTO;
 import com.backend.study_hub_api.dto.UniversityDTO;
 import com.backend.study_hub_api.dto.UserDTO;
+import com.backend.study_hub_api.dto.request.ChangePasswordRequest;
 import com.backend.study_hub_api.helper.enumeration.UserRole;
 import com.backend.study_hub_api.helper.enumeration.VerificationType;
 import com.backend.study_hub_api.helper.exception.BadRequestException;
 import com.backend.study_hub_api.model.University;
 import com.backend.study_hub_api.model.User;
 import com.backend.study_hub_api.repository.UserRepository;
+import com.backend.study_hub_api.service.FileUploadService;
 import com.backend.study_hub_api.service.UniversityService;
 import com.backend.study_hub_api.service.UserService;
 import com.backend.study_hub_api.service.VerificationService;
@@ -19,6 +22,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.Optional;
@@ -35,6 +39,13 @@ public class UserServiceImpl implements UserService {
     UserRepository userRepository;
     PasswordEncoder passwordEncoder;
     VerificationService verificationService;
+    FileUploadService fileUploadService;
+
+    private static final String[] ALLOWED_FILE_TYPES = {
+            "image/jpeg",
+            "image/jpg",
+            "image/png",
+    };
 
     @Override
     public List<User> getAllUsers() {
@@ -130,6 +141,52 @@ public class UserServiceImpl implements UserService {
         user.setIsVerified(true);
         userRepository.save(user);
         log.info("User email verified successfully: {}", user.getEmail());
+    }
+
+    @Override
+    public User getCurrentUser() {
+        Long userId = SecurityUtils.getCurrentUserId();
+        if (userId == null) {
+            throw new BadRequestException(USER_NOT_FOUND_ERROR);
+        }
+        return getUserByIdOrThrow(userId);
+    }
+
+    @Override
+    @Transactional
+    public UserDTO changeAvatar(Long userId, MultipartFile avatar) {
+        User user = getUserByIdOrThrow(userId);
+        if (avatar == null || avatar.isEmpty()) {
+            throw new BadRequestException(AVATAR_FILE_EMPTY_ERROR);
+        }
+        String avatarUrl = fileUploadService
+                .uploadFile(avatar, "avatars", ALLOWED_FILE_TYPES)
+                .getFileUrl();
+        if (avatarUrl == null) {
+            throw new BadRequestException(AVATAR_UPLOAD_ERROR);
+        }
+        user.setAvatarUrl(avatarUrl);
+        User updatedUser = userRepository.save(user);
+        return mapToDTO(updatedUser);
+    }
+
+    @Override
+    @Transactional
+    public void changePassword(Long userId, ChangePasswordRequest request) {
+        User user = getUserByIdOrThrow(userId);
+
+        if (!passwordEncoder.matches(request.getCurrentPassword(), user.getPassword())) {
+            throw new BadRequestException(CURRENT_PASSWORD_INCORRECT_ERROR);
+        }
+
+        if (passwordEncoder.matches(request.getNewPassword(), user.getPassword())) {
+            throw new BadRequestException(NEW_PASSWORD_MUST_DIFFER_ERROR);
+        }
+
+        user.setPassword(passwordEncoder.encode(request.getNewPassword()));
+        user.setUpdatedAt(java.time.Instant.now());
+
+        userRepository.save(user);
     }
 
     @Override

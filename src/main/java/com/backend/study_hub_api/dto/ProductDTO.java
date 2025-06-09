@@ -9,9 +9,12 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.Instant;
 import java.util.List;
+
+import static com.backend.study_hub_api.helper.constant.Message.*;
 
 public class ProductDTO {
 
@@ -32,6 +35,9 @@ public class ProductDTO {
 
         @Schema(description = "Price in VND", example = "150000")
         private Integer price;
+
+        @Schema(description = "View count", example = "25")
+        private Integer viewCount;
 
         @Schema(description = "Product condition")
         private ProductCondition condition;
@@ -79,6 +85,12 @@ public class ProductDTO {
         @Schema(description = "Price in VND", example = "150000")
         private Integer price;
 
+        @Schema(description = "Seller information")
+        private UserDTO seller;
+
+        @Schema(description = "View count", example = "25")
+        private Integer viewCount;
+
         @Schema(description = "Product condition")
         private ProductCondition condition;
 
@@ -102,23 +114,24 @@ public class ProductDTO {
     @NoArgsConstructor
     @AllArgsConstructor
     @Schema(description = "Create product request")
+    @Builder
     public static class CreateProductRequest {
-        @NotBlank(message = "Tiêu đề sản phẩm không được để trống")
-        @Size(max = 255, message = "Tiêu đề không được vượt quá 255 ký tự")
+        @NotBlank(message = PRODUCT_TITLE_REQUIRED_ERROR)
+        @Size(max = 255, message = PRODUCT_TITLE_MAX_LENGTH_ERROR)
         @Schema(description = "Product title", example = "Sách Toán Cao Cấp A1", required = true)
         private String title;
 
-        @Size(max = 2000, message = "Mô tả không được vượt quá 2000 ký tự")
+        @Size(max = 2000, message = PRODUCT_DESCRIPTION_MAX_LENGTH_ERROR)
         @Schema(description = "Product description", example = "Sách còn mới 90%, không có ghi chú")
         private String description;
 
-        @NotNull(message = "Giá sản phẩm không được để trống")
-        @Min(value = 1000, message = "Giá tối thiểu là 1,000 VND")
-        @Max(value = 50000000, message = "Giá tối đa là 50,000,000 VND")
+        @NotNull(message = PRODUCT_PRICE_REQUIRED_ERROR)
+        @Min(value = 1000, message = PRODUCT_PRICE_MIN_ERROR)
+        @Max(value = 50000000, message = PRODUCT_PRICE_MAX_ERROR)
         @Schema(description = "Price in VND", example = "150000", required = true)
         private Integer price;
 
-        @NotNull(message = "Tình trạng sản phẩm không được để trống")
+        @NotNull(message = PRODUCT_CONDITION_REQUIRED_ERROR)
         @Schema(description = "Product condition", required = true)
         private ProductCondition condition;
 
@@ -128,12 +141,12 @@ public class ProductDTO {
         @Schema(description = "Delivery method", example = "BOTH")
         private DeliveryMethod deliveryMethod;
 
-        @NotNull(message = "Danh mục không được để trống")
+        @NotNull(message = PRODUCT_CATEGORY_REQUIRED_ERROR)
         @Schema(description = "Category ID", example = "1", required = true)
         private Long categoryId;
 
-        @Schema(description = "Product image URLs")
-        private List<String> imageUrls;
+        @Schema(description = "Product images as multipart files")
+        private List<MultipartFile> images;
     }
 
     @Data
@@ -141,16 +154,16 @@ public class ProductDTO {
     @AllArgsConstructor
     @Schema(description = "Update product request")
     public static class UpdateProductRequest {
-        @Size(max = 255, message = "Tiêu đề không được vượt quá 255 ký tự")
+        @Size(max = 255, message = PRODUCT_TITLE_MAX_LENGTH_ERROR)
         @Schema(description = "Product title", example = "Sách Toán Cao Cấp A1 (Đã cập nhật)")
         private String title;
 
-        @Size(max = 2000, message = "Mô tả không được vượt quá 2000 ký tự")
+        @Size(max = 2000, message = PRODUCT_DESCRIPTION_MAX_LENGTH_ERROR)
         @Schema(description = "Product description")
         private String description;
 
-        @Min(value = 1000, message = "Giá tối thiểu là 1,000 VND")
-        @Max(value = 50000000, message = "Giá tối đa là 50,000,000 VND")
+        @Min(value = 1000, message = PRODUCT_PRICE_MIN_ERROR)
+        @Max(value = 50000000, message = PRODUCT_PRICE_MAX_ERROR)
         @Schema(description = "Price in VND", example = "140000")
         private Integer price;
 

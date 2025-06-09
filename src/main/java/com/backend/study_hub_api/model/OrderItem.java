@@ -1,41 +1,45 @@
 package com.backend.study_hub_api.model;
 
-import com.backend.study_hub_api.helper.enumeration.ReactionType;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.Instant;
 
 @Entity
-@Table(name = "t_comment_reactions",
-       uniqueConstraints = {
-               @UniqueConstraint(columnNames = {"comment_id", "user_id"})
-       })
+@Table(name = "t_order_items")
 @Getter
 @Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class CommentReaction {
+public class OrderItem {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "comment_id", nullable = false)
-    private TopicComment comment;
+    @JoinColumn(name = "order_id", nullable = false)
+    private Order order;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
-    private User user;
-
-    @Column(name = "reaction_type", nullable = false)
-    @Enumerated(EnumType.STRING)
-    private ReactionType reactionType;
+    @JoinColumn(name = "product_id", nullable = false)
+    private Product product;
 
     @Column(name = "created_at")
     private Instant createdAt;
+
+    public Integer getItemPrice() {
+        return product != null ? product.getPrice() : 0;
+    }
+
+    public String getProductTitle() {
+        return product != null ? product.getTitle() : "";
+    }
+
+    public String getProductImageUrl() {
+        return product != null ? product.getPrimaryImageUrl() : null;
+    }
 
     @PrePersist
     protected void onCreate() {

@@ -2,6 +2,7 @@ package com.backend.study_hub_api.model;
 
 import com.backend.study_hub_api.helper.enumeration.UserRole;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -15,6 +16,7 @@ import java.util.List;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -83,11 +85,6 @@ public class User {
     @ToString.Exclude
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
     private List<TopicReaction> topicReactions;
-
-    @JsonIgnore
-    @ToString.Exclude
-    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
-    private List<CommentReaction> commentReactions;
 
     @JsonIgnore
     @ToString.Exclude

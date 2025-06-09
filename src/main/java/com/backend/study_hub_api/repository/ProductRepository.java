@@ -6,6 +6,8 @@ import com.backend.study_hub_api.model.Product;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -14,25 +16,22 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface ProductRepository extends JpaRepository<Product, Long> {
+public interface ProductRepository extends JpaRepository<Product, Long>, JpaSpecificationExecutor<Product> {
 
-    // Tìm sản phẩm theo người bán
+    List<Product> findByStatusOrderByViewCountDesc(ProductStatus status);
+
     List<Product> findBySellerIdOrderByCreatedAtDesc(Long sellerId);
 
     Page<Product> findBySellerIdOrderByCreatedAtDesc(Long sellerId, Pageable pageable);
 
-    // Tìm sản phẩm theo danh mục
     Page<Product> findByCategoryIdAndStatusOrderByCreatedAtDesc(Long categoryId, ProductStatus status, Pageable pageable);
 
-    // Tìm sản phẩm theo trạng thái
     Page<Product> findByStatusOrderByCreatedAtDesc(ProductStatus status, Pageable pageable);
 
-    // Tìm sản phẩm đang bán (AVAILABLE) - shorthand method
     default Page<Product> findAvailableProducts(Pageable pageable) {
         return findByStatusOrderByCreatedAtDesc(ProductStatus.AVAILABLE, pageable);
     }
 
-    // Tìm sản phẩm theo ID với thông tin seller và category
     @Query("SELECT p FROM Product p " +
            "LEFT JOIN FETCH p.seller " +
            "LEFT JOIN FETCH p.category " +
@@ -40,7 +39,6 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
            "WHERE p.id = :id")
     Optional<Product> findByIdWithDetails(@Param("id") Long id);
 
-    // Tìm kiếm sản phẩm theo từ khóa
     @Query("SELECT p FROM Product p " +
            "WHERE (:keyword IS NULL OR " +
            "LOWER(p.title) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
@@ -51,7 +49,6 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
                                   @Param("status") ProductStatus status,
                                   Pageable pageable);
 
-    // Tìm kiếm nâng cao
     @Query("SELECT p FROM Product p " +
            "WHERE (:keyword IS NULL OR " +
            "LOWER(p.title) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
@@ -71,7 +68,6 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
                                  @Param("sellerId") Long sellerId,
                                  Pageable pageable);
 
-    // Tìm sản phẩm theo trường đại học của người bán
     @Query("SELECT p FROM Product p " +
            "WHERE p.seller.university = :university " +
            "AND p.status = :status " +
@@ -80,10 +76,8 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
                                                   @Param("status") ProductStatus status,
                                                   Pageable pageable);
 
-    // Đếm số sản phẩm theo người bán
     long countBySellerIdAndStatus(Long sellerId, ProductStatus status);
 
-    // Tìm sản phẩm tương tự (cùng danh mục, khác ID)
     @Query("SELECT p FROM Product p " +
            "WHERE p.category.id = :categoryId " +
            "AND p.id != :productId " +
@@ -94,13 +88,10 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
                                       @Param("status") ProductStatus status,
                                       Pageable pageable);
 
-    // Thống kê số lượng sản phẩm theo trạng thái
     @Query("SELECT p.status as status, COUNT(p) as count FROM Product p GROUP BY p.status")
     List<Object[]> countProductsByStatus();
 
-    // Sản phẩm mới nhất
     List<Product> findTop10ByStatusOrderByCreatedAtDesc(ProductStatus status);
 
-    // Kiểm tra quyền sở hữu sản phẩm
     boolean existsByIdAndSellerId(Long productId, Long sellerId);
 }

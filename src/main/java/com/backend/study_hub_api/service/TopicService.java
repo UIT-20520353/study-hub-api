@@ -20,6 +20,7 @@ public interface TopicService {
     PaginationDTO<TopicDTO.TopicResponse> getTopicsWithFilter(TopicFilterCriteria criteria);
     PaginationDTO<TopicDTO.TopicResponse> getAllTopics(Pageable pageable);
     TopicDTO.TopicResponse getTopicById(Long id);
+    List<TopicDTO.TopicResponse> getTop10Topics();
 
     // ==================== SPECIAL QUERIES ====================
 

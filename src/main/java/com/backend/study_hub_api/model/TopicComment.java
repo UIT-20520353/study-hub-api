@@ -46,11 +46,6 @@ public class TopicComment {
     @Column(name = "updated_at")
     private Instant updatedAt;
 
-    @JsonIgnore
-    @ToString.Exclude
-    @OneToMany(mappedBy = "comment", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
-    private List<CommentReaction> reactions;
-
     @PrePersist
     protected void onCreate() {
         createdAt = Instant.now();

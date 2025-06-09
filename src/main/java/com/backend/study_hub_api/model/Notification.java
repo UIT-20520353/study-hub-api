@@ -49,6 +49,10 @@ public class Notification {
     @JoinColumn(name = "comment_id")
     private TopicComment comment;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "order_id")
+    private Order order;
+
     @Column(name = "is_read")
     private Boolean isRead = false;
 

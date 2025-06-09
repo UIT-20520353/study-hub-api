@@ -163,7 +163,7 @@ public class TopicDTO {
 
         private Long id;
         private String title;
-        private String contentPreview; // First 200 characters
+        private String contentPreview;
         private Integer viewCount;
         private Integer commentCount;
         private Integer likeCount;

@@ -35,6 +35,13 @@ public class TopicController {
     TopicService topicService;
     TopicReactionService topicReactionService;
 
+    @GetMapping("/top-10")
+    @Operation(summary = "Get top 10 topics", description = "Retrieve the top 10 topics based on view count")
+    public ResponseEntity<List<TopicDTO.TopicResponse>> getTop10Topics() {
+        List<TopicDTO.TopicResponse> response = topicService.getTop10Topics();
+        return ResponseEntity.ok(response);
+    }
+
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<TopicDTO.TopicResponse> createTopic(
             @RequestParam("title") String title,

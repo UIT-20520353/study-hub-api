@@ -150,6 +150,14 @@ public class TopicServiceImpl implements TopicService {
     }
 
     @Override
+    public List<TopicDTO.TopicResponse> getTop10Topics() {
+        return topicRepository.findTop10ByStatusOrderByViewCountDesc(TopicStatus.ACTIVE)
+                .stream()
+                .map(this::mapToDTO)
+                .collect(Collectors.toList());
+    }
+
+    @Override
     public List<TopicDTO.TopicSummaryResponse> getPopularTopics(int limit) {
         TopicFilterCriteria criteria = TopicFilterCriteria.builder()
                 .statuses(List.of(TopicStatus.ACTIVE))
@@ -242,14 +250,10 @@ public class TopicServiceImpl implements TopicService {
     }
 
     private TopicDTO.TopicSummaryResponse mapToSummaryDTO(TopicDTO.TopicResponse topic) {
-        String contentPreview = topic.getContent().length() > 200
-                ? topic.getContent().substring(0, 200) + "..."
-                : topic.getContent();
-
         return TopicDTO.TopicSummaryResponse.builder()
                 .id(topic.getId())
                 .title(topic.getTitle())
-                .contentPreview(contentPreview)
+                .contentPreview(topic.getContent())
                 .viewCount(topic.getViewCount())
                 .commentCount(topic.getCommentCount())
                 .likeCount(topic.getLikeCount())
@@ -259,7 +263,7 @@ public class TopicServiceImpl implements TopicService {
                 .createdAt(topic.getCreatedAt())
                 .lastActivityAt(topic.getLastActivityAt())
                 .author(topic.getAuthor())
-                .categories(topic.getCategories()) // Thay đổi
+                .categories(topic.getCategories())
                 .university(topic.getUniversity())
                 .build();
     }
@@ -267,7 +271,7 @@ public class TopicServiceImpl implements TopicService {
     @Override
     public Topic getTopicByIdOrThrow(Long id) {
         return topicRepository.findById(id)
-                .orElseThrow(() -> new BadRequestException("Topic not found"));
+                .orElseThrow(() -> new BadRequestException(TOPIC_NOT_FOUND_ERROR));
     }
 
     // ==================== MAPPING HELPERS ====================
